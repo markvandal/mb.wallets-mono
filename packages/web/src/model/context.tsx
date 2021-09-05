@@ -1,8 +1,8 @@
 
 import { useState, ComponentProps, createContext, PropsWithChildren, useEffect } from 'react'
 
-import { WalletWrapper, EncryptedStore, buildWalletWrapper } from 'metabelarusid-core'
-import { webCryptoHelper } from 'metabelarusid-common'
+import { WalletWrapper, EncryptedStore, buildWalletWrapper } from '@owlmeans/regov-ssi-core'
+import { webCryptoHelper } from '@owlmeans/regov-ssi-common'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { RootState } from '../store/types'

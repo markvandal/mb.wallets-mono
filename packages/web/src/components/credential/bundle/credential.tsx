@@ -16,13 +16,13 @@ import { withRouter, RouteComponentProps } from 'react-router'
 
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-import { Credential } from 'metabelarusid-core'
+import { Credential } from '@owlmeans/regov-ssi-core'
 
 import { PropsWithWallet } from '../../../model/types'
 import { passportHelper } from '../../../model/passport'
 import { withWallet } from '../../../model/context'
 import { bundle } from '../../../model/bundler'
-import { DIDDocument } from 'metabelarusid-did'
+import { DIDDocument } from '@owlmeans/regov-ssi-did'
 
 
 type WalletCredentialBundlerRouteParams = {

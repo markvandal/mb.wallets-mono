@@ -14,7 +14,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router'
 
 
-import { REGISTRY_SECTION_PEER, REGISTRY_TYPE_IDENTITIES } from 'metabelarusid-core'
+import { REGISTRY_SECTION_PEER, REGISTRY_TYPE_IDENTITIES } from '@owlmeans/regov-ssi-core'
 
 import { PropsWithWallet } from '../../../model/types'
 import { withWallet } from '../../../model/context'

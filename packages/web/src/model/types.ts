@@ -8,7 +8,8 @@ import {
   IdentitySubject,
   UnsignedCredentail, 
   WalletWrapper
-} from "metabelarusid-core"
+} from "@owlmeans/regov-ssi-core"
+
 
 export type PropsWithWallet = { wallet: WalletWrapper }
 
@@ -29,7 +30,7 @@ export type UnsignedFreeFormCredential = UnsignedCredentail<FreeFormSubject>
 export type FreeFormCredential = Credential<FreeFormSubject>
 
 
-export const DID_PREFIX = process.env.DID_PREFIX || 'metatest'
+export const DID_PREFIX = process.env.REACT_APP_DID_PREFIX || 'metatest'
 
 export const WALLET_TYPE_PREFIX = DID_PREFIX[0].toUpperCase() + DID_PREFIX.substr(1)
 
@@ -39,7 +40,7 @@ export const TYPE_CREDENTIAL_FREEFORM = `${WALLET_TYPE_PREFIX}FreeFormCredential
 
 export const BASE_CREDENTIAL_TYPE = 'VerifiableCredential'
 
-export const BASE_CREDENTIAL_SCHEMA = process.env.DID_SCHEMA || 'https://www.w3.org/2018/credentials/v1'
+export const BASE_CREDENTIAL_SCHEMA = process.env.REACT_APP_DID_SCHEMA || 'https://www.w3.org/2018/credentials/v1'
 
 export const PASSPORT_CREDENTIAL_TYPES: CommonType = [BASE_CREDENTIAL_TYPE, TYPE_PASSPORT_SUBJECT]
 

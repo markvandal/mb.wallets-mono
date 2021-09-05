@@ -1,6 +1,6 @@
 
 import { PayloadAction, SliceCaseReducers } from '@reduxjs/toolkit'
-import { SecureStore, EncryptedStore } from 'metabelarusid-core'
+import { SecureStore, EncryptedStore } from '@owlmeans/regov-ssi-core'
 
 export type SecuredStoreState = {
   stores: { [key: string]: EncryptedStore }

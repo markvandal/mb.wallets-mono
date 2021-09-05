@@ -1,6 +1,6 @@
 
 import { PayloadAction, SliceCaseReducers } from '@reduxjs/toolkit'
-import { DIDDocument, DIDDocumentUnsinged } from 'metabelarusid-did'
+import { DIDDocument, DIDDocumentUnsinged } from '@owlmeans/regov-ssi-did'
 import { FreeFormCredential, IdentityPassport, UnsignedFreeFormCredential } from '../../model/types'
 
 export type CredentialState = {

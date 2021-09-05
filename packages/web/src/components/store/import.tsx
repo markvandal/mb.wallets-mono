@@ -1,6 +1,6 @@
 import { Card, Button, CardContent, CardHeader, Grid, makeStyles, Paper, Typography } from "@material-ui/core"
 import { compose } from "@reduxjs/toolkit"
-import { EncryptedStore } from "metabelarusid-core"
+import { EncryptedStore } from "@owlmeans/regov-ssi-core"
 import { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { connect, ConnectedProps } from "react-redux"

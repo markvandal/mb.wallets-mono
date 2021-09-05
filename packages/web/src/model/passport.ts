@@ -1,6 +1,6 @@
 
-import { REGISTRY_TYPE_IDENTITIES, WalletWrapper } from 'metabelarusid-core'
-import { didPurposeList } from 'metabelarusid-did'
+import { REGISTRY_TYPE_IDENTITIES, WalletWrapper } from '@owlmeans/regov-ssi-core'
+import { didPurposeList } from '@owlmeans/regov-ssi-did'
 import {
   IdentityPassportSubject,
   IdentityPassportWrapper,

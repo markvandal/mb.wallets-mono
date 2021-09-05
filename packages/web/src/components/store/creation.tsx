@@ -14,7 +14,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { withRouter, generatePath, RouteComponentProps } from 'react-router'
 import { History } from 'history'
 
-import { BasicStore, DEFAULT_WALLET_ALIAS } from 'metabelarusid-core'
+import { BasicStore, DEFAULT_WALLET_ALIAS } from '@owlmeans/regov-ssi-core'
 
 import { produceWalletContext } from '../../model/context'
 import { storeActions } from '../../store'

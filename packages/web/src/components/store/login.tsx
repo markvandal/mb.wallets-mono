@@ -14,7 +14,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { withRouter, generatePath, RouteComponentProps } from 'react-router'
 import { History } from 'history'
 
-import { EncryptedStore } from 'metabelarusid-core'
+import { EncryptedStore } from '@owlmeans/regov-ssi-core'
 
 import { produceWalletContext, withWallet } from '../../model/context'
 import { buildFormHelper } from '../helper/form'

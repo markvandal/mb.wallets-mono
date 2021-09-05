@@ -8,6 +8,8 @@ import { store, persistor } from './store'
 import { RootNavigation } from './navigation/index'
 import { WalletProvider } from './model/context'
 
+console.log(process.env)
+
 export const App = () => {
   return (
     <Provider store={store}>

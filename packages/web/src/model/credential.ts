@@ -1,6 +1,6 @@
 
-import { REGISTRY_SECTION_PEER, REGISTRY_TYPE_IDENTITIES, WalletWrapper } from 'metabelarusid-core'
-import { DIDPURPOSE_ASSERTION, DIDPURPOSE_VERIFICATION, DIDVerificationItem } from 'metabelarusid-did'
+import { REGISTRY_SECTION_PEER, REGISTRY_TYPE_IDENTITIES, WalletWrapper } from '@owlmeans/regov-ssi-core'
+import { DIDPURPOSE_ASSERTION, DIDPURPOSE_VERIFICATION, DIDVerificationItem } from '@owlmeans/regov-ssi-did'
 
 import { buildContext } from './utils'
 import {

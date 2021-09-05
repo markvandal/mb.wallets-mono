@@ -4,7 +4,7 @@ import { compose } from 'recompose'
 
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { saveAs } from 'file-saver'
-import { EncryptedStore } from 'metabelarusid-core'
+import { EncryptedStore } from '@owlmeans/regov-ssi-core'
 
 import { RootState } from '../../store/types'
 import { withWallet } from '../../model/context'
