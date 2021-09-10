@@ -28,7 +28,7 @@ export const credentialHelper = {
     issuer?: IdentityPassport
   }> => {
     const issuer = await wallet.getRegistry(REGISTRY_TYPE_IDENTITIES).getCredential(
-      credential.did.proof.controller,
+      credential.credential.holder.id,
       REGISTRY_SECTION_PEER
     )
 
@@ -39,11 +39,7 @@ export const credentialHelper = {
       }
     }
 
-    const issuerKey = await wallet.did.extractKey(credential.did.proof.controller)
-    const [result, info] = await wallet.ctx.verifyCredential(
-      credential.credential,
-      issuerKey
-    )
+    const [result, info] = await wallet.ctx.verifyCredential(credential.credential, credential.did)
     const errors: string[] = []
     if (!result && info.kind === 'invalid') {
       info.errors.forEach(error => errors.push(error.message))
@@ -58,10 +54,9 @@ export const credentialHelper = {
 
   signClaim: async (wallet: WalletWrapper, claim: CredentialClaimState): Promise<SignedCredentialState> => {
     const key = await wallet.keys.getCryptoKey()
+    const did = await wallet.did.helper().signDID(key, claim.did, [DIDPURPOSE_ASSERTION])
 
-    const did = await wallet.did.helper().signDID(key, claim.did)
-
-    const credential = await wallet.ctx.signCredential(claim.credential, did.proof.controller, key)
+    const credential = await wallet.ctx.signCredential(claim.credential, did)
 
     return { credential, did }
   },

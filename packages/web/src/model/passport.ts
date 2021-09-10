@@ -60,12 +60,14 @@ export const passportHelper = {
     const unsignedIdenity = await wallet.ctx.buildCredential({
       id: did.id,
       type: PASSPORT_CREDENTIAL_TYPES,
-      holder: did.proof.controller,
+      holder: wallet.ctx.did.helper().extractProofController(did),
       context: buildContext('passport/v1'),
       subject: identitySubject
     })
 
-    const identity = await wallet.ctx.signCredential<IdentityPassportSubject>(unsignedIdenity, did.proof.controller, key)
+    const identity = await wallet.ctx.signCredential<IdentityPassportSubject>(
+      unsignedIdenity, did
+    )
 
     const registry = wallet.getRegistry(REGISTRY_TYPE_IDENTITIES)
     await registry.addCredential(identity)
