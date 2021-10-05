@@ -16,13 +16,17 @@ import { connect, ConnectedProps } from 'react-redux'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { withWallet } from '../../model/context'
-import { PropsWithWallet } from '../../model/types'
+import {
+  PropsWithWallet,
+  UnsignedFreeFormCredential
+} from '../../model/types'
 import { buildFormHelper } from '../helper/form'
 import { RootState } from '../../store/types'
 import { passportHelper } from '../../model/passport'
 import { credentialHelper } from '../../model/credential'
 import { credentialActions } from '../../store'
 import { bundle } from '../../model/bundler'
+import { extractSubject } from '@owlmeans/regov-ssi-core'
 
 
 const connector = connect(
@@ -42,7 +46,7 @@ const connector = connect(
         if (!props.wallet) {
           return
         }
-        const { identity } = passportHelper.getPassport(props.wallet)
+        const { identity } = passportHelper(props.wallet).getIdentity()
         if (!identity) {
           alert('Создайте в начале себе паспорт!')
           return
@@ -52,7 +56,7 @@ const connector = connect(
           return
         }
 
-        const claim = await credentialHelper.createClaim(props.wallet, fields.freeform)
+        const claim = await credentialHelper(props.wallet).createClaim(fields.freeform)
         dispatch(credentialActions.claim(claim))
       },
       copy: () => {
@@ -75,6 +79,9 @@ export const CredentialClaim = compose(withWallet, connector)(
   >) => {
     const helper = buildFormHelper<ClaimFields>([useRef()])
 
+    const claimCredential = claim && credentialHelper(wallet).unbundleClaim(claim)
+      .credentialSubject?.data.credential
+
     return <Grid container
       direction="column"
       justifyContent="flex-start"
@@ -91,7 +98,7 @@ export const CredentialClaim = compose(withWallet, connector)(
               <Grid item>
                 <Typography variant="body2">
                   Чтобы получить верифицированный документ, создайте заявление.
-                  Скопируйте и передайте это заявление эмитенту документов, 
+                  Скопируйте и передайте это заявление эмитенту документов,
                   которому доверяют лица запрашивающие документ для проверки.<br />
                   Например, передйте представителю "Паспортного стола Meta-ID"
                 </Typography>
@@ -129,7 +136,7 @@ export const CredentialClaim = compose(withWallet, connector)(
         </Card>
       </Grid>
       {
-        claim ? <Grid item>
+        claimCredential ? <Grid item>
           <Card>
             <CardHeader title="Заявление успешно создано!" />
             <CardContent>
@@ -141,7 +148,7 @@ export const CredentialClaim = compose(withWallet, connector)(
                   <Typography variant="h6">Текст документа</Typography>
                   <Typography variant="caption">
                     <pre>{
-                      credentialHelper.getFreeFormSubjectContent(claim.credential.credentialSubject)
+                      extractSubject<UnsignedFreeFormCredential>(claimCredential).data.freeform
                     }</pre>
                   </Typography>
                 </Grid>

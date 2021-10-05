@@ -22,7 +22,8 @@ import { buildFormHelper } from '../helper/form'
 import { credentialActions } from '../../store'
 import { RootState } from '../../store/types'
 import { credentialHelper } from '../../model/credential'
-import { CredentialClaimState, SignedCredentialState } from '../../store/types/credential'
+import { FreeFormClaimBundle, FreeFormOfferBundle } from '../../store/types/credential'
+import { extractSubject } from '@owlmeans/regov-ssi-core'
 
 
 const connector = connect(
@@ -57,13 +58,13 @@ const connector = connect(
         }
       },
 
-      sign: async (claim: CredentialClaimState) => {
+      sign: async (claim: FreeFormClaimBundle) => {
         if (!props.wallet || !claim) {
           return
         }
 
-        const signed = await credentialHelper.signClaim(
-          props.wallet, JSON.parse(JSON.stringify(claim))
+        const signed = await credentialHelper(props.wallet).signClaim(
+          JSON.parse(JSON.stringify(claim))
         )
 
         dispatch(credentialActions.sign(signed))
@@ -81,8 +82,12 @@ const connector = connect(
 )
 
 export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)(
-  ({ claim, signed, unbundle, sign, clear }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
+  ({ claim, signed, unbundle, sign, clear, wallet }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
     const helper = buildFormHelper<SignerFields>([useRef()])
+    const offer = credentialHelper(wallet).unbundleOffer(signed)
+    const offerCredential = offer?.credentialSubject?.data.credential
+    const claimed = credentialHelper(wallet).unbundleClaim(claim)
+    const claimCredential = claimed?.credentialSubject?.data.credential
 
     return <Card>
       <CardHeader title="Выпишите документ по заявке" />
@@ -97,19 +102,15 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   alignItems="stretch">
                   <Grid item>
                     <Typography>Документ в свободной форме</Typography>
-                    <pre>{
-                      signed.credential?.credentialSubject
-                        ? credentialHelper.getFreeFormSubjectContent(signed.credential.credentialSubject)
-                        : ''
-                    }</pre>
+                    <pre>{offerCredential ? extractSubject(offerCredential).data.freeform : ''}</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Документ</Typography>
-                    <pre>{JSON.stringify(signed.credential, null, 2)}</pre>
+                    <pre>{JSON.stringify(offerCredential, null, 2)}</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Сертификат документа</Typography>
-                    <pre>{JSON.stringify(signed.did, null, 2)}</pre>
+                    <pre>{JSON.stringify(offer?.credentialSubject.did, null, 2)}</pre>
                   </Grid>
                   <Grid item container direction="row"
                     justifyContent="flex-end"
@@ -131,7 +132,7 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                         </Grid>
                         <Grid item>
                           <CopyToClipboard text={
-                            signed.credential?.id ? bundle(signed, 'credential') : ''
+                            offer?.credentialSubject.did?.id ? bundle(signed, 'credential') : ''
                           }>
                             <Button variant="contained" size="large" color="primary">
                               Скопировать
@@ -149,19 +150,15 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   alignItems="stretch">
                   <Grid item>
                     <Typography>Заявка на документ в свободной форме</Typography>
-                    <pre>{
-                      claim.credential?.credentialSubject
-                        ? credentialHelper.getFreeFormSubjectContent(claim.credential.credentialSubject)
-                        : ''
-                    }</pre>
+                    <pre>{claimCredential ? extractSubject(claimCredential).data.freeform : ''}</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Заявка на документ</Typography>
-                    <pre>{JSON.stringify(claim.credential, null, 2)}</pre>
+                    <pre>{JSON.stringify(claimCredential, null, 2)}</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Заявка на сертификат для документа</Typography>
-                    <pre>{JSON.stringify(claim.did, null, 2)}</pre>
+                    <pre>{JSON.stringify(claimed?.credentialSubject.did, null, 2)}</pre>
                   </Grid>
                   <Grid item container direction="row"
                     justifyContent="flex-end"
@@ -211,8 +208,8 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
 )
 
 type SignerProps = {
-  claim: CredentialClaimState
-  signed: SignedCredentialState
+  claim: FreeFormClaimBundle 
+  signed: FreeFormOfferBundle
 }
 
 type SignerFields = {

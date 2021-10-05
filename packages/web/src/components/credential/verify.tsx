@@ -27,6 +27,7 @@ import { SignedCredentialStateWithErrors } from '../../store/types/credential'
 import { RootState } from '../../store/types'
 import { credentialHelper } from '../../model/credential'
 import { passportHelper } from '../../model/passport'
+import { extractSubject } from '@owlmeans/regov-ssi-core'
 
 
 type CredentialVerifierProps = {
@@ -54,18 +55,18 @@ const connector = connect(
           const bundle = unbundle(fields.document)
           if (bundle.type !== 'credential') {
             dispatch(credentialActions.verify({
-              ...bundle.document,
+              offer: bundle.document,
               errors: ['Можно проверить только подписанный документ']
             }))
             alert('Можно проверить только подписанный документ')
             return
           }
-          const { result, errors, issuer } = await credentialHelper.verify(
-            props.wallet, bundle.document
+          const { result, errors, issuer } = await credentialHelper(props.wallet).verify(
+            bundle.document
           )
 
           dispatch(credentialActions.verify({
-            ...bundle.document,
+            offer: bundle.document,
             issuer,
             ...(result ? {} : { errors })
           }))
@@ -85,9 +86,11 @@ const connector = connect(
 )
 
 export const CredentialVerifier = compose(withWallet, withRouter, connector)(
-  ({ credential, verify, clear }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
+  ({ credential, verify, clear, wallet }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
     const classes = useStyles()
     const helper = buildFormHelper<VerifierFields>([useRef()])
+
+    const offerCredential = credential?.offer && credentialHelper(wallet).unbundleOffer(credential.offer)
 
     return credential
       ? <Card>
@@ -121,11 +124,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                       )
                       : <Paper>
                         <pre className={classes.content}>
-                          {
-                            credentialHelper.getFreeFormSubjectContent(
-                              credential.credential.credentialSubject
-                            )
-                          }
+                          {extractSubject(offerCredential)}
                         </pre>
                       </Paper>
                   }
@@ -142,7 +141,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                   <Paper>
                     <pre className={classes.content}>
                       {
-                        JSON.stringify(credential.credential, null, 2)
+                        JSON.stringify(offerCredential?.credentialSubject.data.credential, null, 2)
                       }
                     </pre>
                   </Paper>
@@ -159,7 +158,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                   <Paper>
                     <pre className={classes.content}>
                       {
-                        JSON.stringify(credential.did, null, 2)
+                        JSON.stringify(offerCredential?.credentialSubject.did, null, 2)
                       }
                     </pre>
                   </Paper>
@@ -182,7 +181,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                     <pre className={classes.content}>
                       {
                         credential.issuer
-                          ? passportHelper.getPassportSubjectContent(credential.issuer.credentialSubject)
+                          ? passportHelper(wallet).getPassportSubjectContent(credential.issuer.credentialSubject)
                           : 'Неизвестен 😞'
                       }
                     </pre>

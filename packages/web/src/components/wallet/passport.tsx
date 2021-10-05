@@ -36,7 +36,7 @@ const connector = connect(
           alert('Пожалуйста напишите что нибудь о себе! Эта информация будет доступна только вам.')
         }
 
-        await passportHelper.createPassport(props.wallet, fields.info)
+        await passportHelper(props.wallet).createPassport(fields.info)
 
         dispatch(identityActions.tip())
         dispatch(storeActions.update(await props.wallet.export()))
@@ -75,7 +75,7 @@ export const WalletPassport = compose(withWallet, withRouter, connector)(
             }
             <Grid item>
               <Typography variant="body1">
-                Информация для контролёра: {passportHelper.getPassportInfo(wallet)}
+                Информация для контролёра: {passportHelper(wallet).getPassportInfo()}
               </Typography>
             </Grid>
             <Grid container item

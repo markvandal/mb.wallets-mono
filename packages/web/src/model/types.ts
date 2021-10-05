@@ -1,13 +1,14 @@
 import {
   Credential,
-  CommonType,
+  CredentialType,
   CredentialSubject,
-  CredentialSubjectType,
+  WrappedDocument,
   CredentialWrapper,
   Identity,
   IdentitySubject,
-  UnsignedCredentail, 
-  WalletWrapper
+  UnsignedCredential, 
+  WalletWrapper,
+  BASE_CREDENTIAL_TYPE
 } from "@owlmeans/regov-ssi-core"
 
 
@@ -17,15 +18,19 @@ export type IdentityPassportWrapper = CredentialWrapper<IdentityPassportSubject,
 
 export type IdentityPassport = Identity<IdentityPassportSubject>
 
-export type IdentityPassportSubject = IdentitySubject<IdentityPassportSubjectType>
+export type IdentityPassportSubject = IdentitySubject<IdentityPassportDoc>
 
-export type IdentityPassportSubjectType = CredentialSubjectType & { info: string }
+export type IdentityPassportDoc = WrappedDocument<PassportPayload>
 
-export type FreeFormSubjectType = CredentialSubjectType & { freeform: string }
+export type PassportPayload = { info: string }
 
-export type FreeFormSubject = CredentialSubject<FreeFormSubjectType>
+export type FreeFormDoc = WrappedDocument<FreeFromPayload>
 
-export type UnsignedFreeFormCredential = UnsignedCredentail<FreeFormSubject>
+export type FreeFromPayload = { freeform: string }
+
+export type FreeFormSubject = CredentialSubject<FreeFormDoc>
+
+export type UnsignedFreeFormCredential = UnsignedCredential<FreeFormSubject>
 
 export type FreeFormCredential = Credential<FreeFormSubject>
 
@@ -38,13 +43,11 @@ export const TYPE_PASSPORT_SUBJECT = `${WALLET_TYPE_PREFIX}PassportIdentity`
 
 export const TYPE_CREDENTIAL_FREEFORM = `${WALLET_TYPE_PREFIX}FreeFormCredential`
 
-export const BASE_CREDENTIAL_TYPE = 'VerifiableCredential'
-
 export const BASE_CREDENTIAL_SCHEMA = process.env.REACT_APP_DID_SCHEMA || 'https://www.w3.org/2018/credentials/v1'
 
-export const PASSPORT_CREDENTIAL_TYPES: CommonType = [BASE_CREDENTIAL_TYPE, TYPE_PASSPORT_SUBJECT]
+export const PASSPORT_CREDENTIAL_TYPES: CredentialType = [BASE_CREDENTIAL_TYPE, TYPE_PASSPORT_SUBJECT]
 
-export const FREEFORM_CREDENTIAL_TYPES: CommonType = [BASE_CREDENTIAL_TYPE, TYPE_CREDENTIAL_FREEFORM]
+export const FREEFORM_CREDENTIAL_TYPES: CredentialType = [BASE_CREDENTIAL_TYPE, TYPE_CREDENTIAL_FREEFORM]
 
 
 export const ERROR_BUNDLER_WRONG_PREFIX = 'ERROR_BUNDLER_WRONG_PREFIX'

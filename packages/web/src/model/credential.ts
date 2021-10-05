@@ -1,94 +1,91 @@
 
-import { REGISTRY_SECTION_PEER, REGISTRY_TYPE_IDENTITIES, WalletWrapper } from '@owlmeans/regov-ssi-core'
-import { DIDPURPOSE_ASSERTION, DIDPURPOSE_VERIFICATION, DIDVerificationItem } from '@owlmeans/regov-ssi-did'
-
-import { buildContext } from './utils'
 import {
-  ERROR_VERIFICATION_NOIDENTITY,
-  FreeFormSubject,
-  FREEFORM_CREDENTIAL_TYPES,
+  WalletWrapper,
+} from '@owlmeans/regov-ssi-core'
+
+import {
+  FreeFormCredential,
+  FreeFromPayload,
   IdentityPassport,
-  TYPE_CREDENTIAL_FREEFORM
+  TYPE_CREDENTIAL_FREEFORM,
 } from './types'
-import { CredentialClaimState, SignedCredentialState } from '../store/types/credential'
+import {
+  BundledFreeFormClaim,
+  BundledFreeFormOffer,
+  FreeFormClaimBundle,
+  FreeFormOfferBundle,
+  FreeFormPresentation
+} from '../store/types/credential'
+import {
+  CREDENTIAL_CLAIM_TYPE,
+  CREDENTIAL_OFFER_TYPE,
+  holderCredentialHelper,
+  issuerCredentialHelper,
+  verifierCredentialHelper
+} from '@owlmeans/regov-ssi-agent'
 
 
-export const credentialHelper = {
-  getFreeFormSubjectContent: (subject: FreeFormSubject) => {
-    if (Array.isArray(subject)) {
-      subject = subject[0]
-    }
+export const credentialHelper = (wallet: WalletWrapper) => {
+  const _holderHelper = holderCredentialHelper<FreeFromPayload, {}, FreeFormCredential>(wallet)
+  const _issuerHelper = issuerCredentialHelper<FreeFromPayload, {}, FreeFormCredential>(wallet)
+  const _verifierHelper = verifierCredentialHelper(wallet)
 
-    return subject.data.freeform
-  },
+  const _helper = {
+    verify: async (presentation: FreeFormPresentation): Promise<{
+      result: boolean,
+      errors: string[],
+      issuer?: IdentityPassport
+    }> => {
+      const { result, entity } = await _verifierHelper.response().verify(presentation)
 
-  verify: async (wallet: WalletWrapper, credential: SignedCredentialState): Promise<{
-    result: boolean,
-    errors: string[],
-    issuer?: IdentityPassport
-  }> => {
-    const issuer = await wallet.getRegistry(REGISTRY_TYPE_IDENTITIES).getCredential(
-      credential.credential.holder.id,
-      REGISTRY_SECTION_PEER
-    )
-
-    if (!issuer) {
       return {
-        result: false,
-        errors: [ERROR_VERIFICATION_NOIDENTITY],
+        result,
+        errors: [],
+        issuer: entity.credentialSubject.data.identity as IdentityPassport
       }
-    }
+    },
 
-    const [result, info] = await wallet.ctx.verifyCredential(credential.credential, credential.did)
-    const errors: string[] = []
-    if (!result && info.kind === 'invalid') {
-      info.errors.forEach(error => errors.push(error.message))
-    }
+    signClaim: async (bundle: FreeFormClaimBundle): Promise<FreeFormOfferBundle | undefined> => {
+      const _bundleHelper = _helper.buildFreeFormIssuerHelper()
 
-    return {
-      result,
-      errors,
-      issuer: issuer.credential as IdentityPassport
-    }
-  },
+      const { result, claims } = await _bundleHelper.unbudle(bundle)
+      if (result) {
+        const offers = await _issuerHelper.claim().signClaims(claims)
 
-  signClaim: async (wallet: WalletWrapper, claim: CredentialClaimState): Promise<SignedCredentialState> => {
-    const key = await wallet.keys.getCryptoKey()
-    const did = await wallet.did.helper().signDID(key, claim.did, [DIDPURPOSE_ASSERTION])
-
-    const credential = await wallet.ctx.signCredential(claim.credential, did)
-
-    return { credential, did }
-  },
-
-  createClaim: async (wallet: WalletWrapper, freeform: string): Promise<CredentialClaimState> => {
-    const credentialSubject: FreeFormSubject = {
-      data: {
-        '@type': TYPE_CREDENTIAL_FREEFORM,
-        freeform
+        return await _bundleHelper.build(offers)
       }
-    }
+    },
 
-    const key = await wallet.keys.getCryptoKey()
-    const didUnsigned = await wallet.did.helper().createDID(
-      key, {
-      data: JSON.stringify(credentialSubject),
-      hash: true,
-      purpose: [DIDPURPOSE_VERIFICATION, DIDPURPOSE_ASSERTION]
-    }
-    )
+    buildFreeFormIssuerHelper: () => _issuerHelper
+      .bundle<BundledFreeFormClaim, BundledFreeFormOffer>(),
 
-    const unsignedCredential = await wallet.ctx.buildCredential({
-      id: didUnsigned.id,
-      type: FREEFORM_CREDENTIAL_TYPES,
-      holder: (didUnsigned.verificationMethod[0] as DIDVerificationItem).controller,
-      context: buildContext('credential/freeform/v1'),
-      subject: credentialSubject
-    })
+    buildFreeFormClaimHelper: () => _holderHelper.claim({
+      type: TYPE_CREDENTIAL_FREEFORM,
+      schemaUri: 'credential/freeform/v1'
+    }),
 
-    return {
-      credential: unsignedCredential,
-      did: didUnsigned
+    createClaim: async (freeform: string): Promise<FreeFormClaimBundle> => {
+      const _claimHelper = _helper.buildFreeFormClaimHelper()
+
+      const claim = await _claimHelper.build({ freeform })
+
+      const bundle = await _holderHelper.bundle<BundledFreeFormClaim>().build([claim])
+
+      return bundle
+    },
+
+    unbundleClaim: (bundle: FreeFormClaimBundle) => {
+      return bundle?.verifiableCredential?.find(
+        claim => claim.type.includes(CREDENTIAL_CLAIM_TYPE)
+      )
+    },
+
+    unbundleOffer: (bundle: FreeFormOfferBundle) => {
+      return bundle?.verifiableCredential?.find(
+        offer => offer.type.includes(CREDENTIAL_OFFER_TYPE)
+      )
     }
   }
+
+  return _helper
 }
