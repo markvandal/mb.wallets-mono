@@ -8,3 +8,5 @@ export * from './helper/index'
 export * from './wallet/index'
 
 export * from './credential/index'
+
+export * from './capability/index'

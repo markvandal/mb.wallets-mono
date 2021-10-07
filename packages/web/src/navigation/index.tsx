@@ -11,6 +11,8 @@ import { NavigationMainRedirect, NavigationTop } from '../components'
 
 import { StoreNavigation } from "./store"
 import { WalletNavigation } from "./wallet"
+import { RegistryNavigation } from "./registry"
+import { CapabilityNavigation } from "./capability"
 
 
 export const RootNavigation = () => {
@@ -29,6 +31,12 @@ export const RootNavigation = () => {
           </Route>
           <Route path="/wallet">
             <WalletNavigation />
+          </Route>
+          <Route path="/registry">
+            <RegistryNavigation />
+          </Route>
+          <Route path="/capability">
+            <CapabilityNavigation />
           </Route>
         </Switch>
       </Box>

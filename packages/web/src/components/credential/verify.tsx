@@ -17,7 +17,6 @@ import { connect, ConnectedProps } from 'react-redux'
 import { withRouter } from 'react-router'
 
 
-
 import { PropsWithWallet } from '../../model/types'
 import { withWallet } from '../../model/context'
 import { bundle, unbundle } from '../../model/bundler'

@@ -21,6 +21,7 @@ import { RootState } from "../store/types"
 import { connect, ConnectedProps } from "react-redux"
 import { compose } from "@reduxjs/toolkit"
 import { withWallet } from "../model/context"
+import { REGISTRY_SECTION_OWN, REGISTRY_TYPE_CREDENTIALS } from "@owlmeans/regov-ssi-core"
 
 
 const connector = connect(
@@ -49,6 +50,12 @@ export const WalletNavigation = compose(withWallet, connector)(
             spacing={1}>
             <Grid item>
               {created || wallet?.hasIdentity() ? <CredentialClaim /> : null}
+            </Grid>
+            <Grid item>
+              <Button fullWidth variant="contained" color="primary"
+                onClick={
+                  () => history.push(`/registry/${REGISTRY_TYPE_CREDENTIALS}/${REGISTRY_SECTION_OWN}`)
+                }>Сохраненные документы</Button>
             </Grid>
           </Grid>
           <Grid container item xs={6} spacing={1}
