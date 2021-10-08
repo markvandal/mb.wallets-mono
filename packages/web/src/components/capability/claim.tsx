@@ -1,5 +1,5 @@
 
-import { PropsWithChildren, useRef, useState } from 'react'
+import { Fragment, PropsWithChildren, useState } from 'react'
 import { compose } from 'recompose'
 
 import {
@@ -13,17 +13,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  TextField,
 } from '@material-ui/core'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { withWallet } from '../../model/context'
+import { capabilityHelper } from '../../model/capability'
 import {
   PropsWithWallet,
   UnsignedFreeFormCredential
 } from '../../model/types'
-import { buildFormHelper } from '../helper/form'
 import { RootState } from '../../store/types'
 import { passportHelper } from '../../model/passport'
 import { credentialHelper } from '../../model/credential'
@@ -55,13 +56,26 @@ const connector = connect(
           alert('Создайте в начале себе паспорт!')
           return
         }
-        if (!fields.name) {
-          alert('Заполните пожалуйста документ, если хотите создать заявление!')
-          return
-        }
 
-        const claim = await credentialHelper(props.wallet).createClaim(fields.name)
-        dispatch(credentialActions.claim(claim))
+        switch (fields.baseType) {
+          case CREDENTIAL_CAPABILITY_TYPE:
+
+            break
+          case CREDENTIAL_GOVERNANCE_TYPE:
+            switch (fields.source) {
+              case 'self':
+                if (!fields.name) {
+                  alert('Пожалуйста укажите имя для самоподписанного сертификата организации')
+                  return
+                }
+                const [wrap] = await capabilityHelper(props.wallet).selfIssueGovernance(fields.name)
+                dispatch(credentialActions.selfSign(wrap.credential))
+                alert('Вы успешно создали и добавили к себе самоподписанный сертификат организации')
+                return
+            }
+            break
+        }
+        // dispatch(credentialActions.claim(claim))
       },
       copy: () => {
         dispatch(credentialActions.cleanUp())
@@ -81,10 +95,11 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
   }: PropsWithChildren<
     ConnectedProps<typeof connector> & PropsWithWallet
   >) => {
-    const helper = buildFormHelper<CapabilityClaimFields>([useRef()])
-
-    const [baseType, setBaseType] = useState(CREDENTIAL_GOVERNANCE_TYPE)
-    const [type, setType] = useState('tmp')
+    const [fields, setFields] = useState<CapabilityClaimFields>({
+      baseType: CREDENTIAL_CAPABILITY_TYPE,
+      type: 'membership',
+      source: 'self'
+    })
 
     const claimCredential = claim && credentialHelper(wallet).unbundleClaim(claim)
       .credentialSubject?.data.credential
@@ -108,14 +123,17 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
                 alignItems="stretch"
                 spacing={2}
               >
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <FormControl fullWidth>
                     <InputLabel id="claim-capability-type-label">Тип возможности</InputLabel>
                     <Select
                       labelId="claim-capability-type-label"
-                      value={baseType}
+                      value={fields.baseType}
                       label="Тип возможности"
-                      onChange={event => setBaseType(event.target.value as string)}
+                      onChange={event => setFields({
+                        ...fields,
+                        baseType: event.target.value as string
+                      })}
                     >
                       <MenuItem value={CREDENTIAL_GOVERNANCE_TYPE}>Организация</MenuItem>
                       <MenuItem value={CREDENTIAL_CAPABILITY_TYPE}>Возможность</MenuItem>
@@ -123,32 +141,78 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
 
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={8} container
+                  direction="column"
+                  justifyContent="flex-start"
+                  alignItems="stretch">
                   {
-                    baseType === CREDENTIAL_CAPABILITY_TYPE
-                    && <FormControl fullWidth>
-                      <InputLabel id="claim-capability-label">Возможность</InputLabel>
-                      <Select
-                        labelId="claim-capability-label"
-                        value={type}
-                        label="Возможности"
-                        onChange={event => setType(event.target.value as string)}
-                      >
-                        <MenuItem value="tmp">Принятие членов оргнанизации</MenuItem>
-                      </Select>
-                    </FormControl>
+                    fields.baseType === CREDENTIAL_CAPABILITY_TYPE
+                    &&
+                    <Grid item>
+                      <FormControl fullWidth>
+                        <InputLabel id="claim-capability-label">Возможность</InputLabel>
+                        <Select
+                          labelId="claim-capability-label"
+                          value={fields.type}
+                          label="Возможности"
+                          onChange={event => setFields({
+                            ...fields,
+                            type: event.target.value as string
+                          })}
+                        >
+                          <MenuItem value="membership">Принятие членов оргнанизации</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  }
+
+                  {
+                    fields.baseType === CREDENTIAL_GOVERNANCE_TYPE
+                    && <Fragment>
+                      <Grid item>
+                        <FormControl fullWidth>
+                          <InputLabel id="claim-source-label">Источник</InputLabel>
+                          <Select
+                            labelId="claim-source-label"
+                            value={fields.source}
+                            label="Самоподписанный"
+                            onChange={event => setFields({
+                              ...fields,
+                              source: event.target.value as string
+                            })}
+                          >
+                            <MenuItem value="self">Самоподписанный</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item>
+                        <FormControl fullWidth>
+                          <TextField
+                            required
+                            onChange={event => setFields({
+                              ...fields,
+                              name: event.target.value
+                            })}
+                            id="outlined-required"
+                            label="Заголовок"
+                            placeholder="Напр.: Управляющая организация"
+                          />
+                        </FormControl>
+                      </Grid>
+                    </Fragment>
                   }
                 </Grid>
+
                 <Grid container
                   direction="row"
                   justifyContent="flex-end"
                   alignItems="center"
                   spacing={1}>
-                  <Grid item xs={6}>
+                  <Grid item xs={8}>
                     <Button fullWidth variant="contained" size="large"
                       disabled={!created && !wallet?.hasIdentity()}
-                      onClick={() => create(helper.extract())}>
-                      Создать
+                      onClick={() => create(fields)}>
+                      Написать заявление
                     </Button>
                   </Grid>
                 </Grid>
@@ -199,5 +263,8 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
 )
 
 type CapabilityClaimFields = {
-  name: string
+  name?: string
+  baseType?: string
+  type?: string
+  source?: string
 }

@@ -24,7 +24,7 @@ import { buildFormHelper } from '../helper/form'
 import { RootState } from '../../store/types'
 import { passportHelper } from '../../model/passport'
 import { credentialHelper } from '../../model/credential'
-import { credentialActions } from '../../store'
+import { credentialActions, storeActions } from '../../store'
 import { bundle } from '../../model/bundler'
 import { extractSubject } from '@owlmeans/regov-ssi-core'
 
@@ -58,6 +58,7 @@ const connector = connect(
 
         const claim = await credentialHelper(props.wallet).createClaim(fields.freeform)
         dispatch(credentialActions.claim(claim))
+        dispatch(storeActions.update(await props.wallet.export()))
       },
       copy: () => {
         dispatch(credentialActions.cleanUp())

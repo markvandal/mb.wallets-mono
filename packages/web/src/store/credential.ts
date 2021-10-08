@@ -25,7 +25,9 @@ const slice = createSlice<CredentialState, CredentialReducers>({
         currentClaim: undefined,
         claim: undefined,
         signed: undefined,
-        credential: undefined
+        credential: undefined,
+        selfSigned: undefined,
+        requested: undefined
       }
     },
 
@@ -41,6 +43,20 @@ const slice = createSlice<CredentialState, CredentialReducers>({
         ...state,
         claim: undefined,
         signed
+      }
+    },
+
+    selfSign: (state, {payload: capability}) => {
+      return {
+        ...state,
+        selfSigned: capability
+      }
+    },
+
+    request: (state, {payload: requested}) => {
+      return {
+        ...state,
+        requested
       }
     },
 

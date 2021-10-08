@@ -5,7 +5,7 @@ import {
   useRouteMatch
 } from "react-router-dom"
 
-import { CapabilityClaimForm } from "../components"
+import { CapabilityClaimForm, CredentialRequestForm } from "../components"
 
 
 export const CapabilityNavigation = () => {
@@ -14,6 +14,9 @@ export const CapabilityNavigation = () => {
   return <Switch>
     <Route path={`${path}/claim`}>
       <CapabilityClaimForm />
+    </Route>
+    <Route path={`${path}/request`}>
+      <CredentialRequestForm baseType="capability" />
     </Route>
   </Switch>
 }

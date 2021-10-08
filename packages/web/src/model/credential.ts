@@ -84,6 +84,13 @@ export const credentialHelper = (wallet: WalletWrapper) => {
       return bundle?.verifiableCredential?.find(
         offer => offer.type.includes(CREDENTIAL_OFFER_TYPE)
       )
+    },
+
+    request: async (type: string | string[], source?: string) => {
+      const req = await verifierCredentialHelper(wallet).request()
+        .build({ '@type': type, ...(source ? { source } : {}) })
+
+      return await verifierCredentialHelper(wallet).request().bundle([req])
     }
   }
 
