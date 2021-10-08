@@ -13,6 +13,7 @@ import { StoreNavigation } from "./store"
 import { WalletNavigation } from "./wallet"
 import { RegistryNavigation } from "./registry"
 import { CapabilityNavigation } from "./capability"
+import { CredentialsNavigation } from "./credentials"
 
 
 export const RootNavigation = () => {
@@ -37,6 +38,9 @@ export const RootNavigation = () => {
           </Route>
           <Route path="/capability">
             <CapabilityNavigation />
+          </Route>
+          <Route path="/credentials">
+            <CredentialsNavigation />
           </Route>
         </Switch>
       </Box>

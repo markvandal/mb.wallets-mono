@@ -12,6 +12,8 @@ import {
 import {
   BundledFreeFormClaim,
   BundledFreeFormOffer,
+  ClaimBundleTypes,
+  ClaimTypes,
   FreeFormClaimBundle,
   FreeFormOfferBundle,
   FreeFormPresentation
@@ -21,6 +23,7 @@ import {
   CREDENTIAL_OFFER_TYPE,
   holderCredentialHelper,
   issuerCredentialHelper,
+  RequestBundle,
   verifierCredentialHelper
 } from '@owlmeans/regov-ssi-agent'
 
@@ -74,8 +77,8 @@ export const credentialHelper = (wallet: WalletWrapper) => {
       return bundle
     },
 
-    unbundleClaim: (bundle: FreeFormClaimBundle) => {
-      return bundle?.verifiableCredential?.find(
+    unbundleClaim: (bundle: ClaimBundleTypes) => {
+      return (bundle?.verifiableCredential as ClaimTypes[]).find(
         claim => claim.type.includes(CREDENTIAL_CLAIM_TYPE)
       )
     },
@@ -86,11 +89,27 @@ export const credentialHelper = (wallet: WalletWrapper) => {
       )
     },
 
-    request: async (type: string | string[], source?: string) => {
+    request: async (type: string | string[], source?: string, store = true) => {
       const req = await verifierCredentialHelper(wallet).request()
         .build({ '@type': type, ...(source ? { source } : {}) })
 
-      return await verifierCredentialHelper(wallet).request().bundle([req])
+      const bundle = await verifierCredentialHelper(wallet).request().bundle([req])
+
+      if (store) {
+        await verifierCredentialHelper(wallet).request().register(bundle)
+      }
+
+      return bundle
+    },
+
+    response: async (request: RequestBundle) => {
+      const {result, requests } = await holderCredentialHelper(wallet).request().unbundle(request)
+
+      if (!result) {
+        throw new Error("Неверный запрос документов")
+      }
+
+      return await holderCredentialHelper(wallet).response().build(requests, request)
     }
   }
 

@@ -150,7 +150,11 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   alignItems="stretch">
                   <Grid item>
                     <Typography>Заявка на документ в свободной форме</Typography>
-                    <pre>{claimCredential ? extractSubject(claimCredential).data.freeform : ''}</pre>
+                    <pre>{
+                      claimCredential
+                        ? JSON.stringify(extractSubject(claimCredential), undefined, 2)
+                        : ''
+                    }</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Заявка на документ</Typography>
@@ -208,7 +212,7 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
 )
 
 type SignerProps = {
-  claim: FreeFormClaimBundle 
+  claim: FreeFormClaimBundle
   signed: FreeFormOfferBundle
 }
 

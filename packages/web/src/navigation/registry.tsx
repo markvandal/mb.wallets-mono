@@ -22,12 +22,12 @@ import {
 
 
 export const RegistryNavigation = () => {
-  let { path, params } = useRouteMatch<CredentialListProps>('/registry/:type/:section')
+  const { params, url } = useRouteMatch<CredentialListProps>('/registry/:type/:section')
   const history = useHistory()
-
+  
   return <Box>
     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <Tabs value={path} indicatorColor="secondary">
+      <Tabs value={url} indicatorColor="secondary">
         <Tab label="Документы"
           value={`/registry/${REGISTRY_TYPE_CREDENTIALS}/${REGISTRY_SECTION_OWN}`}
           to={`/registry/${REGISTRY_TYPE_CREDENTIALS}/${REGISTRY_SECTION_OWN}`}

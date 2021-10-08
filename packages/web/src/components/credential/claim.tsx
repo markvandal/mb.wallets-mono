@@ -18,7 +18,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { withWallet } from '../../model/context'
 import {
   PropsWithWallet,
-  UnsignedFreeFormCredential
 } from '../../model/types'
 import { buildFormHelper } from '../helper/form'
 import { RootState } from '../../store/types'
@@ -148,9 +147,7 @@ export const CredentialClaim = compose(withWallet, connector)(
                 <Grid item>
                   <Typography variant="h6">Текст документа</Typography>
                   <Typography variant="caption">
-                    <pre>{
-                      extractSubject<UnsignedFreeFormCredential>(claimCredential).data.freeform
-                    }</pre>
+                    <pre>{JSON.stringify(extractSubject(claimCredential), undefined, 2)}</pre>
                   </Typography>
                 </Grid>
                 <Grid container

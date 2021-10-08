@@ -12,11 +12,11 @@ export const CredentialList: FunctionComponent<CredentialListProps> = compose(wi
     (
       { type, section, wallet }: CredentialListProps & PropsWithWallet
     ) => {
-      const list = wallet.getRegistry(type).registry.credentials[section]
+      const list = wallet?.getRegistry(type).registry.credentials[section]
 
       return <List>
         {
-          list.map(
+          list?.map(
             ({ credential: cred }) => <ListItem>
               <ListItemText key={cred.id}
                 primary={

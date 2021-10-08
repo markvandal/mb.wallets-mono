@@ -23,15 +23,23 @@ import { withWallet } from '../../model/context'
 import { capabilityHelper } from '../../model/capability'
 import {
   PropsWithWallet,
-  UnsignedFreeFormCredential
 } from '../../model/types'
 import { RootState } from '../../store/types'
 import { passportHelper } from '../../model/passport'
 import { credentialHelper } from '../../model/credential'
-import { credentialActions } from '../../store'
-import { bundle } from '../../model/bundler'
-import { extractSubject } from '@owlmeans/regov-ssi-core'
-import { CREDENTIAL_CAPABILITY_TYPE, CREDENTIAL_GOVERNANCE_TYPE } from '@owlmeans/regov-ssi-capability'
+import { credentialActions, storeActions } from '../../store'
+import { bundle, unbundle } from '../../model/bundler'
+import { membershipHelper } from '../../model/membership'
+import {
+  extractSubject,
+  Presentation
+} from '@owlmeans/regov-ssi-core'
+import {
+  CapabilityCredential,
+  CREDENTIAL_CAPABILITY_TYPE,
+  CREDENTIAL_GOVERNANCE_TYPE,
+} from '@owlmeans/regov-ssi-capability'
+import { EntityIdentity } from '@owlmeans/regov-ssi-agent'
 
 
 const connector = connect(
@@ -59,7 +67,23 @@ const connector = connect(
 
         switch (fields.baseType) {
           case CREDENTIAL_CAPABILITY_TYPE:
+            switch (fields.type) {
+              case 'membership':
+                if (!fields.gov) {
+                  alert(
+                    'Нужно запросить сертификат организации, чтобы сформировать ' +
+                    'запрос на возможность принимать новых членов'
+                  )
+                  return
+                }
+                const gov: Presentation<EntityIdentity | CapabilityCredential>
+                  = unbundle(fields.gov).document
 
+                const claimCap = await membershipHelper(props.wallet).claimCapability(gov)
+                dispatch(credentialActions.claim(claimCap))
+                dispatch(storeActions.tip())
+                return
+            }
             break
           case CREDENTIAL_GOVERNANCE_TYPE:
             switch (fields.source) {
@@ -70,6 +94,7 @@ const connector = connect(
                 }
                 const [wrap] = await capabilityHelper(props.wallet).selfIssueGovernance(fields.name)
                 dispatch(credentialActions.selfSign(wrap.credential))
+                dispatch(storeActions.tip())
                 alert('Вы успешно создали и добавили к себе самоподписанный сертификат организации')
                 return
             }
@@ -201,6 +226,33 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
                       </Grid>
                     </Fragment>
                   }
+
+                  {
+                    fields.baseType === CREDENTIAL_CAPABILITY_TYPE
+                    && fields.type === 'membership'
+                    && <Fragment>
+                      <Grid item>
+                        <FormControl fullWidth>
+                          <TextField
+                            onChange={event => setFields({
+                              ...fields,
+                              gov: event.target.value
+                            })}
+                            label="Ответ с сертификатом оргнаизации"
+                            placeholder={bundle({ fake: 'value' }, 'sometype')}
+                            helperText="Ответ должен быть сгенерирован другим кошельком в ответ на ваш запрос сертификата организации"
+                            multiline
+                            minRows={16}
+                            maxRows={32}
+                            fullWidth
+                            margin="normal"
+                            InputLabelProps={{ shrink: true }}
+                            variant="outlined"
+                          />
+                        </FormControl>
+                      </Grid>
+                    </Fragment>
+                  }
                 </Grid>
 
                 <Grid container
@@ -212,7 +264,7 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
                     <Button fullWidth variant="contained" size="large"
                       disabled={!created && !wallet?.hasIdentity()}
                       onClick={() => create(fields)}>
-                      Написать заявление
+                      Создать заявление
                     </Button>
                   </Grid>
                 </Grid>
@@ -234,9 +286,7 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
                 <Grid item>
                   <Typography variant="h6">Текст документа</Typography>
                   <Typography variant="caption">
-                    <pre>{
-                      extractSubject<UnsignedFreeFormCredential>(claimCredential).data.freeform
-                    }</pre>
+                    <pre>{JSON.stringify(extractSubject(claimCredential), undefined, 2)}</pre>
                   </Typography>
                 </Grid>
                 <Grid container
@@ -267,4 +317,5 @@ type CapabilityClaimFields = {
   baseType?: string
   type?: string
   source?: string
+  gov?: string
 }

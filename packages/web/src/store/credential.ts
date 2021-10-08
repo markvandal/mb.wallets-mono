@@ -27,7 +27,8 @@ const slice = createSlice<CredentialState, CredentialReducers>({
         signed: undefined,
         credential: undefined,
         selfSigned: undefined,
-        requested: undefined
+        requested: undefined,
+        response: undefined
       }
     },
 
@@ -57,6 +58,13 @@ const slice = createSlice<CredentialState, CredentialReducers>({
       return {
         ...state,
         requested
+      }
+    },
+
+    response: (state, {payload: response}) => {
+      return {
+        ...state,
+        response
       }
     },
 

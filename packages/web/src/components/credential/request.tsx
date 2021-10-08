@@ -26,9 +26,9 @@ import {
 import { RootState } from '../../store/types'
 import { passportHelper } from '../../model/passport'
 import { credentialHelper } from '../../model/credential'
-import { credentialActions } from '../../store'
+import { credentialActions, storeActions } from '../../store'
 import { bundle } from '../../model/bundler'
-import { CREDENTIAL_CAPABILITY_TYPE, CREDENTIAL_GOVERNANCE_TYPE } from '@owlmeans/regov-ssi-capability'
+import { CREDENTIAL_GOVERNANCE_TYPE, REGISTRY_TYPE_CAPABILITY } from '@owlmeans/regov-ssi-capability'
 
 
 const connector = connect(
@@ -57,8 +57,9 @@ const connector = connect(
           case 'capability':
             try {
             const bundle = await credentialHelper(props.wallet)
-              .request(fields.type, CREDENTIAL_CAPABILITY_TYPE)
+              .request(fields.type, REGISTRY_TYPE_CAPABILITY, false)
               dispatch(credentialActions.request(bundle))
+              dispatch(storeActions.tip())
             } catch (e) {
               console.log(e)
               alert('Произошла ошибка')
@@ -86,7 +87,7 @@ export const CredentialRequestForm = compose(withWallet, connector)(
     ConnectedProps<typeof connector> & PropsWithWallet
   >) => {
     const formTitle = baseType === 'capability'
-      ? 'возможности' : 'документы'
+      ? 'возможности' : 'документа'
 
     const [fields, setFields] = useState<CredentialRequestFields>({
       type: baseType === 'capability'
@@ -112,7 +113,7 @@ export const CredentialRequestForm = compose(withWallet, connector)(
       spacing={2}>
       <Grid item>
         <Card>
-          <CardHeader title={`Создать запрос на ${formTitle}`} />
+          <CardHeader title={`Создать запрос ${formTitle}`} />
           <CardContent>
             <Grid container
               direction="column"
@@ -164,7 +165,7 @@ export const CredentialRequestForm = compose(withWallet, connector)(
       {
         requested ? <Grid item>
           <Card>
-            <CardHeader title="Заявление успешно создано!" />
+            <CardHeader title="Запрос успешно создан!" />
             <CardContent>
               <Grid container
                 direction="column"
