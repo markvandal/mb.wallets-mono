@@ -56,6 +56,11 @@ export const capabilityHelper = (wallet: WalletWrapper) => {
     },
 
     storeOffer: async (offer: MembershipCapOfferBundle) => {
+      /**
+       * @TODO Fix types in this method.
+       * It looks like it's not quite clear the real VP & VC Claim
+       * structure.
+       */
       const { result } = await holderCredentialHelper<
         CapabilityDocument, CapabilityExtension,
         CapabilityCredential, OfferCapabilityExtension

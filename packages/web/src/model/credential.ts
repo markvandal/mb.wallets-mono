@@ -112,6 +112,10 @@ export const credentialHelper = (wallet: WalletWrapper) => {
 
       return await holderCredentialHelper(wallet).response().build(requests, request)
     }
+    /**
+     * @PROCEED
+     * @TODO Add proces of membership credential issuing \ holding \ verifying
+     */
   }
 
   return _helper
