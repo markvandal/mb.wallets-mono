@@ -78,7 +78,7 @@ export const credentialHelper = (wallet: WalletWrapper) => {
     },
 
     unbundleClaim: (bundle: ClaimBundleTypes) => {
-      return (bundle?.verifiableCredential as ClaimTypes[]).find(
+      return (bundle?.verifiableCredential as ClaimTypes[])?.find(
         claim => claim.type.includes(CREDENTIAL_CLAIM_TYPE)
       )
     },
@@ -103,7 +103,8 @@ export const credentialHelper = (wallet: WalletWrapper) => {
     },
 
     response: async (request: RequestBundle) => {
-      const {result, requests } = await holderCredentialHelper(wallet).request().unbundle(request)
+      const { result, requests } = await holderCredentialHelper(wallet)
+        .request().unbundle(request)
 
       if (!result) {
         throw new Error("Неверный запрос документов")

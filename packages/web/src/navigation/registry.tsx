@@ -24,7 +24,7 @@ import {
 export const RegistryNavigation = () => {
   const { params, url } = useRouteMatch<CredentialListProps>('/registry/:type/:section')
   const history = useHistory()
-  
+
   return <Box>
     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <Tabs value={url} indicatorColor="secondary">

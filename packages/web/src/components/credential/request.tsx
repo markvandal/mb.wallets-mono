@@ -56,8 +56,8 @@ const connector = connect(
         switch (props.baseType) {
           case 'capability':
             try {
-            const bundle = await credentialHelper(props.wallet)
-              .request(fields.type, REGISTRY_TYPE_CAPABILITY, false)
+              const bundle = await credentialHelper(props.wallet)
+                .request(fields.type, REGISTRY_TYPE_CAPABILITY, false)
               dispatch(credentialActions.request(bundle))
               dispatch(storeActions.tip())
             } catch (e) {
@@ -141,7 +141,7 @@ export const CredentialRequestForm = compose(withWallet, connector)(
                     </Select>
                   </FormControl>
                 </Grid>
-                
+
 
                 <Grid container
                   direction="row"

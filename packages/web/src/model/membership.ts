@@ -39,7 +39,6 @@ export const membershipHelper = (wallet: WalletWrapper) => {
         cap => cap.type.includes(CREDENTIAL_GOVERNANCE_TYPE)
       ) as CapabilityCredential
 
-
       const claim = await governanceCredentialHelper(wallet).claim<MembershipDoc, MembershipExt>(
         source,
         {
@@ -67,9 +66,7 @@ export const membershipHelper = (wallet: WalletWrapper) => {
       )
 
       const claimPres = await holderCredentialHelper<
-        MembershipCapabilityDoc,
-        CapabilityExtension,
-        MembershipCapability
+        MembershipCapabilityDoc, CapabilityExtension, MembershipCapability
       >(wallet).bundle<ClaimMembershipCapability, OfferMembershipCapability>().build([claim])
 
       await holderCredentialHelper(wallet).claim({ type: MEMBERSHIP_CREDENTIAL_TYPE })
@@ -83,7 +80,7 @@ export const membershipHelper = (wallet: WalletWrapper) => {
 }
 
 
-export const MEMBERSHIP_CAPABILITY_TYPE = 'OrganizationMemmbershipCapability'
+export const MEMBERSHIP_CAPABILITY_TYPE = 'OrganizationMembershipCapability'
 
 export const MEMBERSHIP_CREDENTIAL_TYPE = 'OrganizationMemmbership'
 

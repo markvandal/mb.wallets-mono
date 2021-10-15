@@ -4,18 +4,20 @@ import {
   Switch,
   Route,
   useRouteMatch,
-  useHistory
+  useHistory,
 } from "react-router-dom"
 
 import { Button, Grid } from '@material-ui/core'
 import {
-  IssuerCredentialSigner,
   WalletCredentialImporter,
   WalletCredentialBundler,
   WalletPassport,
   CredentialClaim,
-  CredentialVerifier
+  CredentialVerifier,
 } from "../components"
+import {
+  ClaimTabs
+} from './wallet/claim'
 import { PropsWithWallet } from "../model/types"
 import { RootState } from "../store/types"
 import { connect, ConnectedProps } from "react-redux"
@@ -91,7 +93,7 @@ export const WalletNavigation = compose(withWallet, connector)(
         <WalletCredentialImporter />
       </Route>
       <Route path={`${path}/claim/sign`}>
-        <IssuerCredentialSigner />
+        <ClaimTabs />
       </Route>
       <Route path={`${path}/verify`}>
         <CredentialVerifier />
@@ -99,3 +101,4 @@ export const WalletNavigation = compose(withWallet, connector)(
     </Switch>
   }
 )
+

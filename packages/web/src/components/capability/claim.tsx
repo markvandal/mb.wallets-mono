@@ -71,7 +71,7 @@ const connector = connect(
               case 'membership':
                 if (!fields.gov) {
                   alert(
-                    'Нужно запросить сертификат организации, чтобы сформировать ' +
+                    'Нужно предоставить сертификат организации, чтобы сформировать ' +
                     'запрос на возможность принимать новых членов'
                   )
                   return
@@ -103,6 +103,7 @@ const connector = connect(
         // dispatch(credentialActions.claim(claim))
       },
       copy: () => {
+        alert('Документ скопирован в буфер обмена')
         dispatch(credentialActions.cleanUp())
       },
       ...props

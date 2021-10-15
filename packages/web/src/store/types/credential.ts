@@ -18,12 +18,12 @@ import {
 } from '@owlmeans/regov-ssi-agent'
 import { Presentation } from '@owlmeans/regov-ssi-core'
 import { CapabilityCredential } from '@owlmeans/regov-ssi-capability'
-import { ClaimMembershipCapability } from '../../model/membership'
+import { ClaimMembershipCapability, OfferMembershipCapability } from '../../model/membership'
 
 export type CredentialState = {
-  currentClaim?: FreeFormClaimBundle | ClaimBundle<ClaimMembershipCapability>
-  claim?: FreeFormClaimBundle | ClaimBundle<ClaimMembershipCapability>
-  signed?: FreeFormOfferBundle
+  currentClaim?: ClaimBundleTypes
+  claim?: ClaimBundleTypes
+  signed?: OfferBundleTypes
   selfSigned?: CapabilityCredential
   credential?: SignedCredentialStateWithErrors
   requested?: RequestBundle
@@ -33,6 +33,7 @@ export type CredentialState = {
 export type FreeFormClaimBundle = ClaimBundle<BundledFreeFormClaim>
 
 export type MembershipCapClaimBundle = ClaimBundle<ClaimMembershipCapability>
+export type MembershipCapOfferBundle = OfferBundle<OfferMembershipCapability>
 
 export type BundledFreeFormClaim = ClaimCredential<ClaimSubject<UnsignedFreeFormCredential>>
 
@@ -45,6 +46,8 @@ export type FreeFormPresentation = Presentation<FreeFormCredential | EntityIdent
 export type ClaimBundleTypes = FreeFormClaimBundle | MembershipCapClaimBundle
 
 export type ClaimTypes = BundledFreeFormClaim | ClaimMembershipCapability
+
+export type OfferBundleTypes = FreeFormOfferBundle | MembershipCapOfferBundle
 
 
 export type SignedCredentialStateWithErrors = {
@@ -61,7 +64,7 @@ export type CredentialReducers = SliceCaseReducers<CredentialState> & {
 
   review: (state: CredentialState, action: PayloadAction<FreeFormClaimBundle>) => CredentialState
 
-  sign: (state: CredentialState, action: PayloadAction<FreeFormOfferBundle>) => CredentialState
+  sign: (state: CredentialState, action: PayloadAction<OfferBundleTypes>) => CredentialState
 
   selfSign: (state: CredentialState, action: PayloadAction<CapabilityCredential>) => CredentialState
 

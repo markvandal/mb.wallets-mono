@@ -1,3 +1,4 @@
 
 export * from './claim'
-export * from '../credential/request'
+export * from './offer'
+export * from './store'
