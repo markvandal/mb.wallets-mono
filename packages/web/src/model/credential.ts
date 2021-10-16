@@ -16,7 +16,9 @@ import {
   ClaimTypes,
   FreeFormClaimBundle,
   FreeFormOfferBundle,
-  FreeFormPresentation
+  FreeFormPresentation,
+  OfferBundleTypes,
+  OfferTypes
 } from '../store/types/credential'
 import {
   CREDENTIAL_CLAIM_TYPE,
@@ -83,8 +85,8 @@ export const credentialHelper = (wallet: WalletWrapper) => {
       )
     },
 
-    unbundleOffer: (bundle: FreeFormOfferBundle) => {
-      return bundle?.verifiableCredential?.find(
+    unbundleOffer: (bundle: OfferBundleTypes) => {
+      return (bundle?.verifiableCredential as OfferTypes[])?.find(
         offer => offer.type.includes(CREDENTIAL_OFFER_TYPE)
       )
     },

@@ -1,5 +1,5 @@
 
-import { PropsWithoutRef, useRef } from 'react'
+import { PropsWithoutRef, useState } from 'react'
 import { compose } from 'recompose'
 
 import {
@@ -10,6 +10,10 @@ import {
   Button,
   TextField,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@material-ui/core'
 import { connect, ConnectedProps } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router'
@@ -18,12 +22,14 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { PropsWithWallet } from '../../model/types'
 import { withWallet } from '../../model/context'
 import { bundle, unbundle } from '../../model/bundler'
-import { buildFormHelper } from '../helper/form'
 import { credentialActions } from '../../store'
 import { RootState } from '../../store/types'
 import { credentialHelper } from '../../model/credential'
-import { FreeFormClaimBundle, FreeFormOfferBundle } from '../../store/types/credential'
-import { extractSubject } from '@owlmeans/regov-ssi-core'
+import { ClaimBundleTypes, ClaimTypes, MembershipClaimBundle, MembershipOfferBundle } from '../../store/types/credential'
+import { extractSubject, REGISTRY_SECTION_OWN } from '@owlmeans/regov-ssi-core'
+import { REGISTRY_TYPE_CAPABILITY } from '@owlmeans/regov-ssi-capability'
+import { ClaimMembershipCredential, MembershipCapability, MembershipCredential, MEMBERSHIP_CAPABILITY_TYPE, MEMBERSHIP_CREDENTIAL_TYPE } from '../../model/membership'
+import { CREDENTIAL_CLAIM_TYPE } from '@owlmeans/regov-ssi-agent'
 
 
 const connector = connect(
@@ -58,9 +64,27 @@ const connector = connect(
         }
       },
 
-      sign: async (claim: FreeFormClaimBundle) => {
+      sign: async (fields: SignerFields, claim: ClaimBundleTypes) => {
         if (!props.wallet || !claim) {
           return
+        }
+
+        const claimCred = (claim.verifiableCredential as ClaimTypes[]).find(
+          cred => cred.type.includes(MEMBERSHIP_CREDENTIAL_TYPE)
+        ) as ClaimMembershipCredential
+
+        
+
+        if (claimCred) {
+        /**
+         * @PROCEED - we need to put the organization name someway into 
+         * the credential. It looks like there are some discrapancy between
+         * between actual claim and the necessity to sign it with a specific 
+         * capability. 
+         */
+
+          claimCred.credentialSubject.data.credential.credentialSubject.organization
+            = fields.capability
         }
 
         const signed = await credentialHelper(props.wallet).signClaim(
@@ -81,16 +105,16 @@ const connector = connect(
   }
 )
 
-export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)(
+export const OfferCredentialsForm = compose(withWallet, withRouter, connector)(
   ({ claim, signed, unbundle, sign, clear, wallet }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
-    const helper = buildFormHelper<SignerFields>([useRef()])
+    const [fields, setFields] = useState<SignerFields>({})
     const offer = credentialHelper(wallet).unbundleOffer(signed)
     const offerCredential = offer?.credentialSubject?.data.credential
     const claimed = credentialHelper(wallet).unbundleClaim(claim)
     const claimCredential = claimed?.credentialSubject?.data.credential
 
     return <Card>
-      <CardHeader title="Выпишите документ по заявке" />
+      <CardHeader title="Выпишите удостоверение члена организации по заявке" />
       <CardContent>
         {
           (() => {
@@ -101,12 +125,8 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   justifyContent="flex-start"
                   alignItems="stretch">
                   <Grid item>
-                    <Typography>Документ в свободной форме</Typography>
-                    <pre>{offerCredential ? JSON.stringify(extractSubject(offerCredential), null, 2) : ''}</pre>
-                  </Grid>
-                  <Grid item>
                     <Typography>Документ</Typography>
-                    <pre>{JSON.stringify(offerCredential, null, 2)}</pre>
+                    <pre>{offerCredential ? JSON.stringify(extractSubject(offerCredential), null, 2) : ''}</pre>
                   </Grid>
                   <Grid item>
                     <Typography>Сертификат документа</Typography>
@@ -144,12 +164,17 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   </Grid>
                 </Grid>
               case !!claim:
+                const capabilities = wallet.getRegistry(REGISTRY_TYPE_CAPABILITY)
+                  .registry.credentials[REGISTRY_SECTION_OWN].filter(
+                    cap => cap.credential.type.includes(MEMBERSHIP_CAPABILITY_TYPE)
+                  ).map(cap => cap.credential) as MembershipCapability[]
+
                 return <Grid container
                   direction="column"
                   justifyContent="flex-start"
                   alignItems="stretch">
                   <Grid item>
-                    <Typography>Заявка на документ в свободной форме</Typography>
+                    <Typography>Документ</Typography>
                     <pre>{
                       claimCredential
                         ? JSON.stringify(extractSubject(claimCredential), undefined, 2)
@@ -164,11 +189,37 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                     <Typography>Заявка на сертификат для документа</Typography>
                     <pre>{JSON.stringify(claimed?.credentialSubject.did, null, 2)}</pre>
                   </Grid>
+                  <Grid item>
+                    <FormControl fullWidth>
+                      <InputLabel id="claim-capability-label">Право принимать членов</InputLabel>
+                      <Select
+                        labelId="membership-capability-label"
+                        value={fields.capability}
+                        label="Выберите возможность"
+                        onChange={
+                          event => setFields({
+                            ...fields,
+                            capability: event.target.value as string
+                          })
+                        }
+                      >
+                        {
+                          capabilities.map(
+                            cap => {
+                              return <MenuItem key={cap.id} value={cap.id}>
+                                {cap.credentialSubject.data.subjectProps.extension.organization}
+                              </MenuItem>
+                            }
+                          )
+                        }
+                      </Select>
+                    </FormControl>
+                  </Grid>
                   <Grid item container direction="row"
                     justifyContent="flex-end"
                     alignItems="flex-start">
                     <Button variant="contained" size="large" color="primary"
-                      onClick={() => sign(claim)}>
+                      onClick={() => sign(fields, claim)}>
                       Подписать
                     </Button>
                   </Grid>
@@ -180,7 +231,10 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                   alignItems="stretch">
                   <Grid item>
                     <TextField
-                      {...helper.produce('document')}
+                      id="document"
+                      onChange={
+                        event => setFields({ ...fields, document: event.target.value })
+                      }
                       label="Заявка для рассмотрения"
                       placeholder={bundle({ fake: 'value' }, 'claim')}
                       helperText="Заявка должна быть сгенерирована другим кошельком"
@@ -197,7 +251,7 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
                     justifyContent="flex-end"
                     alignItems="flex-start">
                     <Button variant="contained" size="large" color="primary"
-                      onClick={() => unbundle(helper.extract())}>
+                      onClick={() => unbundle(fields)}>
                       Рассмотреть
                     </Button>
                   </Grid>
@@ -212,10 +266,11 @@ export const IssuerCredentialSigner = compose(withWallet, withRouter, connector)
 )
 
 type SignerProps = {
-  claim: FreeFormClaimBundle
-  signed: FreeFormOfferBundle
+  claim: MembershipClaimBundle
+  signed: MembershipOfferBundle
 }
 
 type SignerFields = {
-  document: string
+  document?: string
+  capability?: string
 }

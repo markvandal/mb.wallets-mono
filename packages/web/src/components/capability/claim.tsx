@@ -219,7 +219,7 @@ export const CapabilityClaimForm = compose(withWallet, connector)(
                               ...fields,
                               name: event.target.value
                             })}
-                            id="outlined-required"
+                            id="capability-title"
                             label="Заголовок"
                             placeholder="Напр.: Управляющая организация"
                           />

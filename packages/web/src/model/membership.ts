@@ -82,7 +82,7 @@ export const membershipHelper = (wallet: WalletWrapper) => {
 
 export const MEMBERSHIP_CAPABILITY_TYPE = 'OrganizationMembershipCapability'
 
-export const MEMBERSHIP_CREDENTIAL_TYPE = 'OrganizationMemmbership'
+export const MEMBERSHIP_CREDENTIAL_TYPE = 'OrganizationMembership'
 
 export type ClaimMembershipCapability = ClaimCredential<ClaimSubject<UnsignedMembershipCapability>>
 
@@ -98,6 +98,10 @@ export type MembershipCapability = CapabilityCredential<CapabilitySubject<Member
 export type UnsignedMembershipCredential = UnsignedCredential<MembershipSubject>
 
 export type MembershipCredential = Credential<MembershipSubject>
+
+export type ClaimMembershipCredential = ClaimCredential<ClaimSubject<UnsignedMembershipCredential>>
+
+export type OfferMembershipCredential = OfferCredential<OfferSubject<MembershipCredential>>
 
 export type MembershipSubject = CredentialSubject<WrappedDocument<MembershipDoc>, MembershipExt>
 

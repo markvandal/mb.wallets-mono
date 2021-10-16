@@ -7,7 +7,7 @@ import {
   useHistory
 } from "react-router-dom"
 
-import { CredentialResponseForm } from "../components"
+import { ClaimCredentialsForm, CredentialResponseForm, OfferCredentialsForm } from "../components"
 
 
 export const CredentialsNavigation = () => {
@@ -21,6 +21,12 @@ export const CredentialsNavigation = () => {
     <Switch>
       <Route path={`${path}/response`}>
         <CredentialResponseForm />
+      </Route>
+      <Route path={`${path}/claim`}>
+        <ClaimCredentialsForm />
+      </Route>
+      <Route path={`${path}/offer`}>
+        <OfferCredentialsForm />
       </Route>
     </Switch>
   </Box>

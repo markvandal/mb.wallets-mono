@@ -3,6 +3,7 @@ import { Box, Button, Grid, Tab, Tabs } from '@material-ui/core'
 import { REGISTRY_TYPE_CAPABILITY } from '@owlmeans/regov-ssi-capability'
 import {
   REGISTRY_SECTION_OWN,
+  REGISTRY_TYPE_CLAIMS,
   REGISTRY_TYPE_CREDENTIALS,
   REGISTRY_TYPE_REQUESTS
 } from '@owlmeans/regov-ssi-core'
@@ -43,6 +44,11 @@ export const RegistryNavigation = () => {
           to={`/registry/${REGISTRY_TYPE_REQUESTS}/${REGISTRY_SECTION_OWN}`}
           component={Link}
         />
+        <Tab label="Заявки"
+          value={`/registry/${REGISTRY_TYPE_CLAIMS}/${REGISTRY_SECTION_OWN}`}
+          to={`/registry/${REGISTRY_TYPE_CLAIMS}/${REGISTRY_SECTION_OWN}`}
+          component={Link}
+        />
       </Tabs>
     </Box>
     <CredentialList type={params.type} section={params.section} />
@@ -56,6 +62,16 @@ export const RegistryNavigation = () => {
             <Button variant="contained" color="primary"
               onClick={() => history.push(`/credentials/response`)}
             >Предоставить документы</Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary"
+              onClick={() => history.push(`/credentials/claim`)}
+            >Запросить выпуск документов</Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary"
+              onClick={() => history.push(`/credentials/offer`)}
+            >Выпустить документы</Button>
           </Grid>
         </Grid>
       </Route>
@@ -74,7 +90,7 @@ export const RegistryNavigation = () => {
           <Grid item>
             <Button variant="contained" color="primary"
               onClick={() => history.push(`/capability/claim`)}
-            >Запросить возможность у оргнанизации</Button>
+            >Выписать возможность у оргнанизации</Button>
           </Grid>
         </Grid>
       </Route>

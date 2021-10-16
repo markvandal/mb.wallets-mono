@@ -18,7 +18,7 @@ import {
 } from '@owlmeans/regov-ssi-agent'
 import { Presentation } from '@owlmeans/regov-ssi-core'
 import { CapabilityCredential } from '@owlmeans/regov-ssi-capability'
-import { ClaimMembershipCapability, OfferMembershipCapability } from '../../model/membership'
+import { ClaimMembershipCapability, ClaimMembershipCredential, OfferMembershipCapability, OfferMembershipCredential } from '../../model/membership'
 
 export type CredentialState = {
   currentClaim?: ClaimBundleTypes
@@ -35,19 +35,24 @@ export type FreeFormClaimBundle = ClaimBundle<BundledFreeFormClaim>
 export type MembershipCapClaimBundle = ClaimBundle<ClaimMembershipCapability>
 export type MembershipCapOfferBundle = OfferBundle<OfferMembershipCapability>
 
+export type MembershipClaimBundle = ClaimBundle<ClaimMembershipCredential>
+export type MembershipOfferBundle = OfferBundle<OfferMembershipCredential>
+
 export type BundledFreeFormClaim = ClaimCredential<ClaimSubject<UnsignedFreeFormCredential>>
 
 export type FreeFormOfferBundle = OfferBundle<BundledFreeFormOffer>
 
 export type BundledFreeFormOffer = OfferCredential<OfferSubject<FreeFormCredential>>
 
+
 export type FreeFormPresentation = Presentation<FreeFormCredential | EntityIdentity | SatelliteCredential>
 
-export type ClaimBundleTypes = FreeFormClaimBundle | MembershipCapClaimBundle
+export type ClaimBundleTypes = FreeFormClaimBundle | MembershipCapClaimBundle | MembershipClaimBundle
 
-export type ClaimTypes = BundledFreeFormClaim | ClaimMembershipCapability
+export type ClaimTypes = BundledFreeFormClaim | ClaimMembershipCapability | ClaimMembershipCredential
+export type OfferTypes = BundledFreeFormOffer | OfferMembershipCapability | OfferMembershipCredential
 
-export type OfferBundleTypes = FreeFormOfferBundle | MembershipCapOfferBundle
+export type OfferBundleTypes = FreeFormOfferBundle | MembershipCapOfferBundle | MembershipOfferBundle
 
 
 export type SignedCredentialStateWithErrors = {
