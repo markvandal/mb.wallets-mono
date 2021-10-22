@@ -13,6 +13,11 @@ import { ClaimCredentialsForm, CredentialResponseForm, OfferCredentialsForm } fr
 export const CredentialsNavigation = () => {
   let { path } = useRouteMatch()
   const history = useHistory()
+  
+  /**
+   * @PROCEED
+   * @TODO Add possibility to store issued credentials.
+   */
 
   return <Box>
     <Button fullWidth variant="contained" color="primary"

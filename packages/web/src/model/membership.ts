@@ -3,6 +3,7 @@ import {
   Credential,
   CredentialSubject,
   Presentation,
+  REGISTRY_SECTION_OWN,
   UnsignedCredential,
   WalletWrapper,
   WrappedDocument
@@ -22,6 +23,7 @@ import {
   CapabilitySubject,
   CREDENTIAL_GOVERNANCE_TYPE,
   governanceCredentialHelper,
+  REGISTRY_TYPE_CAPABILITY,
   UnsignedCapabilityCredential,
 } from '@owlmeans/regov-ssi-capability'
 
@@ -73,6 +75,13 @@ export const membershipHelper = (wallet: WalletWrapper) => {
         .register(claimPres)
 
       return claimPres
+    },
+
+    listCapabilities: () => {
+      return wallet.getRegistry(REGISTRY_TYPE_CAPABILITY)
+        .registry.credentials[REGISTRY_SECTION_OWN].filter(
+          cap => cap.credential.type.includes(MEMBERSHIP_CAPABILITY_TYPE)
+        ).map(cap => cap.credential) as MembershipCapability[]
     }
   }
 

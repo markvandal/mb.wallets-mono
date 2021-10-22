@@ -78,7 +78,8 @@ const connector = connect(
                 type: MEMBERSHIP_CREDENTIAL_TYPE,
                 crdContext: {
                   description: { '@id': 'scm:description', '@type': 'xsd:string' },
-                  info: { '@id': 'scm:info', '@type': 'xsd:string' },
+                  role: { '@id': 'scm:info', '@type': 'xsd:string' },
+                  organization: { '@id': 'scm:info', '@type': 'xsd:string' },
                 }
               }).build(
                 {

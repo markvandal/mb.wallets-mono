@@ -15,7 +15,6 @@ import {
   ClaimBundleTypes,
   ClaimTypes,
   FreeFormClaimBundle,
-  FreeFormOfferBundle,
   FreeFormPresentation,
   OfferBundleTypes,
   OfferTypes
@@ -50,10 +49,26 @@ export const credentialHelper = (wallet: WalletWrapper) => {
       }
     },
 
-    signClaim: async (bundle: FreeFormClaimBundle): Promise<FreeFormOfferBundle | undefined> => {
+    unbundleCredClaim: async (bundle: ClaimBundleTypes): Promise<[boolean, ClaimTypes[]]> => {
       const _bundleHelper = _helper.buildFreeFormIssuerHelper()
 
-      const { result, claims } = await _bundleHelper.unbudle(bundle)
+      const { result, claims } = await _bundleHelper.unbudle(bundle as any)
+
+      return [result, claims]
+    },
+
+    signCredClaims: async (claims: ClaimTypes[]) => {
+      const _bundleHelper = _helper.buildFreeFormIssuerHelper()
+      
+      const offers = await _issuerHelper.claim().signClaims(claims as any)
+
+      return await _bundleHelper.build(offers)
+    },
+
+    signClaim: async (bundle: ClaimBundleTypes): Promise<OfferBundleTypes | undefined> => {
+      const _bundleHelper = _helper.buildFreeFormIssuerHelper()
+
+      const { result, claims } = await _bundleHelper.unbudle(bundle as any)
       if (result) {
         const offers = await _issuerHelper.claim().signClaims(claims)
 
@@ -114,10 +129,6 @@ export const credentialHelper = (wallet: WalletWrapper) => {
 
       return await holderCredentialHelper(wallet).response().build(requests, request)
     }
-    /**
-     * @PROCEED
-     * @TODO Add proces of membership credential issuing \ holding \ verifying
-     */
   }
 
   return _helper
