@@ -13,7 +13,8 @@ import {
 import {
   CapabilityClaimForm,
   CredentialRequestForm,
-  CapabilityStoreForm
+  CapabilityStoreForm,
+  IssuerCapabilitySigner
 } from "../components"
 
 
@@ -33,6 +34,9 @@ export const CapabilityNavigation = () => {
       </Route>
       <Route path={`${path}/store`}>
         <CapabilityStoreForm />
+      </Route>
+      <Route path={`${path}/issue`}>
+        <IssuerCapabilitySigner />
       </Route>
     </Switch>
   </Box>

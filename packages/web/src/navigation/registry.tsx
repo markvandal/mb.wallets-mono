@@ -73,6 +73,11 @@ export const RegistryNavigation = () => {
               onClick={() => history.push(`/credentials/offer`)}
             >Выпустить документы</Button>
           </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary"
+              onClick={() => history.push(`/credentials/store`)}
+            >Добавить документы</Button>
+          </Grid>
         </Grid>
       </Route>
 
@@ -92,6 +97,12 @@ export const RegistryNavigation = () => {
               onClick={() => history.push(`/capability/claim`)}
             >Выписать возможность у оргнанизации</Button>
           </Grid>
+
+          <Grid item>
+            <Button variant="contained" color="primary"
+              onClick={() => history.push(`/capability/issue`)}
+            >Выписать возможность по заявке</Button>
+          </Grid>
         </Grid>
       </Route>
 
@@ -105,6 +116,12 @@ export const RegistryNavigation = () => {
               onClick={() => history.push(`/capability/request`)}
             >Запросить возможности</Button>
           </Grid>
+          {
+              /**
+               * @PROCEED
+               * @TODO Add possiblity to request and provide credentials
+               */
+          }
           <Grid item>
             <Button variant="contained" color="primary"
               onClick={() => history.push(`/credential/request`)}

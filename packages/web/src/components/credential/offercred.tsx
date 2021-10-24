@@ -87,9 +87,15 @@ const connector = connect(
               .credentialSubject.data.credential.credentialSubject.organization
               = cap.credentialSubject.data.subjectProps.extension.organization
           )
+        } else {
+          alert('Can\'t sign credential!')
+          return
         }
 
-        const signed = await credentialHelper(props.wallet).signCredClaims(credClaims)
+        const signed = await membershipHelper(props.wallet).issueCreds(
+          credClaims as ClaimMembershipCredential[]
+        )
+        // const signed = await credentialHelper(props.wallet).signCredClaims(credClaims)
 
         dispatch(credentialActions.sign(signed))
       },
@@ -142,7 +148,7 @@ export const OfferCredentialsForm = compose(withWallet, withRouter, connector)(
                           </Button>
                         </Grid>
                         <Grid item>
-                          <CopyToClipboard text={offer?.credentialSubject.did?.id ? bundle(signed, 'credential') : ''}>
+                          <CopyToClipboard text={offer?.credentialSubject.did?.id ? bundle(signed, 'offer') : ''}>
                             <Button variant="contained" size="large" color="primary">
                               Скопировать
                             </Button>

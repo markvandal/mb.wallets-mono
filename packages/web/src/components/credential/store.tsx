@@ -13,13 +13,12 @@ import {
 import { connect, ConnectedProps } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router'
 
-import { capabilityHelper } from '../../model/capability'
-
 import { PropsWithWallet } from '../../model/types'
 import { withWallet } from '../../model/context'
 import { bundle, unbundle } from '../../model/bundler'
 import { buildFormHelper } from '../helper/form'
 import { storeActions } from '../../store'
+import { membershipHelper } from '../../model/membership'
 
 
 const connector = connect(
@@ -39,15 +38,15 @@ const connector = connect(
           const bundle = unbundle(fields.document)
           // @TODO We need to make system import issued documents for holder
           if (bundle.type !== 'offer') {
-            alert('Добавить возможность можно только по предложению возможности!')
+            alert('Добавить документ можно только по предложению документа!')
             return 
           }
 
-          await capabilityHelper(props.wallet).storeOffer(bundle.document)
-          
+          await membershipHelper(props.wallet).storeCreds(bundle.document)
+
           dispatch(storeActions.update(await props.wallet.export()))
 
-          alert('Возможность успешно добавлена в кошелёк!')
+          alert('Документ успешно добавлена в кошелёк!')
 
           props.history.push('/wallet')
         } catch(e) {
@@ -60,12 +59,12 @@ const connector = connect(
   }
 )
 
-export const CapabilityStoreForm = compose(withWallet, withRouter, connector)(
+export const StoreCredentialsForm = compose(withWallet, withRouter, connector)(
   ({ store }: PropsWithoutRef<ConnectedProps<typeof connector>>) => {
     const helper = buildFormHelper<ImporterFields>([useRef()])
 
     return <Card>
-      <CardHeader title="Сохраните выписанную возможность" />
+      <CardHeader title="Сохраните выписанный документ" />
       <CardContent>
         <Grid container
           direction="column"

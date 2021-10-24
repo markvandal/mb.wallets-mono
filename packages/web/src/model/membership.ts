@@ -13,21 +13,26 @@ import {
   ClaimSubject,
   EntityIdentity,
   holderCredentialHelper,
+  issuerCredentialHelper,
   OfferCredential,
   OfferSubject,
 } from '@owlmeans/regov-ssi-agent'
 import {
+  ByCapabilityExtension,
   CapabilityCredential,
   CapabilityDocument,
   CapabilityExtension,
   CapabilitySubject,
   CREDENTIAL_GOVERNANCE_TYPE,
   governanceCredentialHelper,
+  holderCapabilityVisitor,
+  issuerVisitor,
   REGISTRY_TYPE_CAPABILITY,
   UnsignedCapabilityCredential,
 } from '@owlmeans/regov-ssi-capability'
 
 import { passportHelper } from './passport'
+import { MembershipOfferBundle } from '../store/types/credential'
 
 
 export const membershipHelper = (wallet: WalletWrapper) => {
@@ -82,6 +87,44 @@ export const membershipHelper = (wallet: WalletWrapper) => {
         .registry.credentials[REGISTRY_SECTION_OWN].filter(
           cap => cap.credential.type.includes(MEMBERSHIP_CAPABILITY_TYPE)
         ).map(cap => cap.credential) as MembershipCapability[]
+    },
+
+    issueCreds: async (claims: ClaimMembershipCredential[]) => {
+      const offers = await issuerCredentialHelper<
+        MembershipDoc,
+        MembershipExt,
+        MembershipCredential,
+        ByCapabilityExtension
+      >(wallet, issuerVisitor(wallet)).claim().signClaims(claims)
+
+      return await issuerCredentialHelper(wallet)
+        .bundle<ClaimMembershipCredential, OfferMembershipCredential>().build(offers)
+    },
+
+    storeCreds: async (offer: MembershipOfferBundle) => {
+      const { result } = await holderCredentialHelper<
+        MembershipDoc,
+        MembershipExt,
+        MembershipCredential,
+        ByCapabilityExtension
+      >(
+        wallet,
+        holderCapabilityVisitor<MembershipDoc, MembershipExt>()(wallet)
+      ).bundle().unbudle(offer)
+
+      if (!result) {
+        throw new Error('Offer is broken and can\'t be stored')
+      }
+
+      await holderCredentialHelper<
+        MembershipDoc,
+        MembershipExt,
+        MembershipCredential,
+        ByCapabilityExtension
+      >(
+        wallet,
+        holderCapabilityVisitor<MembershipDoc, MembershipExt>()(wallet)
+      ).bundle().store(offer)
     }
   }
 
@@ -110,7 +153,7 @@ export type MembershipCredential = Credential<MembershipSubject>
 
 export type ClaimMembershipCredential = ClaimCredential<ClaimSubject<UnsignedMembershipCredential>>
 
-export type OfferMembershipCredential = OfferCredential<OfferSubject<MembershipCredential>>
+export type OfferMembershipCredential = OfferCredential<OfferSubject<MembershipCredential, ByCapabilityExtension>>
 
 export type MembershipSubject = CredentialSubject<WrappedDocument<MembershipDoc>, MembershipExt>
 

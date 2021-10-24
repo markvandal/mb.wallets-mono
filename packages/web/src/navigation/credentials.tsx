@@ -7,17 +7,17 @@ import {
   useHistory
 } from "react-router-dom"
 
-import { ClaimCredentialsForm, CredentialResponseForm, OfferCredentialsForm } from "../components"
+import { 
+  ClaimCredentialsForm, 
+  CredentialResponseForm, 
+  OfferCredentialsForm,
+  StoreCredentialsForm 
+} from "../components"
 
 
 export const CredentialsNavigation = () => {
   let { path } = useRouteMatch()
   const history = useHistory()
-  
-  /**
-   * @PROCEED
-   * @TODO Add possibility to store issued credentials.
-   */
 
   return <Box>
     <Button fullWidth variant="contained" color="primary"
@@ -32,6 +32,9 @@ export const CredentialsNavigation = () => {
       </Route>
       <Route path={`${path}/offer`}>
         <OfferCredentialsForm />
+      </Route>
+      <Route path={`${path}/store`}>
+        <StoreCredentialsForm />
       </Route>
     </Switch>
   </Box>
