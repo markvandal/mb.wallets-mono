@@ -116,16 +116,15 @@ export const RegistryNavigation = () => {
               onClick={() => history.push(`/capability/request`)}
             >Запросить возможности</Button>
           </Grid>
-          {
-              /**
-               * @PROCEED
-               * @TODO Add possiblity to request and provide credentials
-               */
-          }
           <Grid item>
             <Button variant="contained" color="primary"
-              onClick={() => history.push(`/credential/request`)}
+              onClick={() => history.push(`/credentials/request`)}
             >Запросить документы</Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary"
+              onClick={() => history.push(`/credentials/verify`)}
+            >Проверить документы</Button>
           </Grid>
         </Grid>
       </Route>

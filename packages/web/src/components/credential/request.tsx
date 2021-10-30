@@ -29,6 +29,8 @@ import { credentialHelper } from '../../model/credential'
 import { credentialActions, storeActions } from '../../store'
 import { bundle } from '../../model/bundler'
 import { CREDENTIAL_GOVERNANCE_TYPE, REGISTRY_TYPE_CAPABILITY } from '@owlmeans/regov-ssi-capability'
+import { MEMBERSHIP_CREDENTIAL_TYPE } from '../../model/membership'
+import { verifierCredentialHelper } from '@owlmeans/regov-ssi-agent'
 
 
 const connector = connect(
@@ -64,6 +66,21 @@ const connector = connect(
               console.log(e)
               alert('Произошла ошибка')
             }
+            break
+          default:
+            try {
+              const req = await verifierCredentialHelper(props.wallet)
+                .request().build({ '@type': fields.type })
+
+              const bundle = await verifierCredentialHelper(props.wallet)
+                .request().bundle([req])
+
+              dispatch(credentialActions.request(bundle))
+              dispatch(storeActions.tip())
+            } catch (e) {
+              console.log(e)
+              alert('Произошла ошибка')
+            }
         }
         // dispatch(credentialActions.claim(claim))
       },
@@ -91,19 +108,21 @@ export const CredentialRequestForm = compose(withWallet, connector)(
 
     const [fields, setFields] = useState<CredentialRequestFields>({
       type: baseType === 'capability'
-        ? CREDENTIAL_GOVERNANCE_TYPE : TYPE_CREDENTIAL_FREEFORM,
+        ? CREDENTIAL_GOVERNANCE_TYPE : MEMBERSHIP_CREDENTIAL_TYPE,
     })
 
     const types = baseType === 'capability'
       ? [
         CREDENTIAL_GOVERNANCE_TYPE,
       ] : [
-        TYPE_CREDENTIAL_FREEFORM
+        TYPE_CREDENTIAL_FREEFORM,
+        MEMBERSHIP_CREDENTIAL_TYPE
       ]
 
     const labels = {
       [CREDENTIAL_GOVERNANCE_TYPE]: 'Самоподписанный сертификат организации',
-      [TYPE_CREDENTIAL_FREEFORM]: 'Документы в свободной форме'
+      [TYPE_CREDENTIAL_FREEFORM]: 'Документы в свободной форме',
+      [MEMBERSHIP_CREDENTIAL_TYPE]: 'Членство в организации'
     }
 
     return <Grid container

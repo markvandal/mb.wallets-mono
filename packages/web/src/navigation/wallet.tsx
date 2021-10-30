@@ -71,8 +71,8 @@ export const WalletNavigation = compose(withWallet, connector)(
               alignItems="stretch">
               <Grid item>
                 <Button fullWidth variant="contained" color="primary"
-                  disabled={!created && !wallet?.hasIdentity()}
-                  onClick={() => history.push(`${path}/claim/sign`)}>Выписать документ по заявке</Button>
+                  disabled={true}
+                  onClick={() => history.push(`${path}/claim/sign`)}>Выписать документ по заявке (недоступно)</Button>
               </Grid>
               <Grid item>
                 <Button fullWidth variant="contained" color="primary"
@@ -80,7 +80,8 @@ export const WalletNavigation = compose(withWallet, connector)(
               </Grid>
               <Grid item>
                 <Button fullWidth variant="contained" color="primary"
-                  onClick={() => history.push(`${path}/verify`)}>Проверить документ</Button>
+                  disabled={true}
+                  onClick={() => history.push(`${path}/verify`)}>Проверить документ (недоступно)</Button>
               </Grid>
             </Grid>
           </Grid>

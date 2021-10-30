@@ -54,6 +54,7 @@ export const NavigationTop = compose(withWallet, withRouter, connector)(
           <Link color="inherit"
             onClick={() => history.push('/')}>
             <Typography variant="h5">Meta-ID</Typography>
+            <Typography variant="h6" color="secondary">(Группы - демо версия!!! НЕ ИСПОЛЬЗУЙТЕ ЭТО ДЛЯ РЕАЛЬНЫХ КЕЙСОВ!)</Typography>
           </Link>
         </Grid>
         {

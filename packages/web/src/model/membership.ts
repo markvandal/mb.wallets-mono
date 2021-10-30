@@ -102,7 +102,7 @@ export const membershipHelper = (wallet: WalletWrapper) => {
     },
 
     storeCreds: async (offer: MembershipOfferBundle) => {
-      const { result } = await holderCredentialHelper<
+      const { result, errors } = await holderCredentialHelper<
         MembershipDoc,
         MembershipExt,
         MembershipCredential,
@@ -112,6 +112,7 @@ export const membershipHelper = (wallet: WalletWrapper) => {
         holderCapabilityVisitor<MembershipDoc, MembershipExt>()(wallet)
       ).bundle().unbudle(offer)
 
+      console.log(errors)
       if (!result) {
         throw new Error('Offer is broken and can\'t be stored')
       }

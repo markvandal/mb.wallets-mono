@@ -1,5 +1,6 @@
 
 import {
+  Presentation,
   WalletWrapper,
 } from '@owlmeans/regov-ssi-core'
 
@@ -16,6 +17,7 @@ import {
   ClaimTypes,
   FreeFormClaimBundle,
   FreeFormPresentation,
+  MembershipPresentation,
   OfferBundleTypes,
   OfferTypes
 } from '../store/types/credential'
@@ -27,6 +29,8 @@ import {
   RequestBundle,
   verifierCredentialHelper
 } from '@owlmeans/regov-ssi-agent'
+import { MembershipCredential, MembershipDoc, MembershipExt, MEMBERSHIP_CREDENTIAL_TYPE } from './membership'
+import { ByCapabilityExtension, holderCapabilityVisitor, verifierCapabilityHelper } from '@owlmeans/regov-ssi-capability'
 
 
 export const credentialHelper = (wallet: WalletWrapper) => {
@@ -35,12 +39,29 @@ export const credentialHelper = (wallet: WalletWrapper) => {
   const _verifierHelper = verifierCredentialHelper(wallet)
 
   const _helper = {
-    verify: async (presentation: FreeFormPresentation): Promise<{
+    verify: async (presentation: FreeFormPresentation | MembershipPresentation): Promise<{
       result: boolean,
       errors: string[],
       issuer?: IdentityPassport
     }> => {
-      const { result, entity } = await _verifierHelper.response().verify(presentation)
+      if ((presentation as Presentation).verifiableCredential.find(
+        cred => cred.type.includes(MEMBERSHIP_CREDENTIAL_TYPE)
+      )) {
+
+        let { result, credentials, dids, entity } = await verifierCredentialHelper(wallet)
+            .response().verify(presentation as any)
+        // @TODO This shouldn't be this way - it should check satellites @BUG @BLOCKER
+        // const { result, entity } = await verifierCapabilityHelper<MembershipCredential>(wallet)
+        //   .response().verify(presentation as any)
+
+        return {
+          result,
+          errors: [],
+          issuer: entity.credentialSubject.data.identity as IdentityPassport
+        }
+      }
+
+      const { result, entity } = await _verifierHelper.response().verify(presentation as any)
 
       return {
         result,
@@ -59,7 +80,7 @@ export const credentialHelper = (wallet: WalletWrapper) => {
 
     signCredClaims: async (claims: ClaimTypes[]) => {
       const _bundleHelper = _helper.buildFreeFormIssuerHelper()
-      
+
       const offers = await _issuerHelper.claim().signClaims(claims as any)
 
       return await _bundleHelper.build(offers)
@@ -125,6 +146,19 @@ export const credentialHelper = (wallet: WalletWrapper) => {
 
       if (!result) {
         throw new Error("Неверный запрос документов")
+      }
+
+      if (requests[0].credentialSubject.data['@type'].includes(MEMBERSHIP_CREDENTIAL_TYPE)) {
+        return await holderCredentialHelper<
+          MembershipDoc,
+          MembershipExt,
+          MembershipCredential,
+          ByCapabilityExtension
+        >(wallet, holderCapabilityVisitor<
+          MembershipDoc,
+          MembershipExt
+        >()(wallet))
+          .response().build(requests, request)
       }
 
       return await holderCredentialHelper(wallet).response().build(requests, request)

@@ -18,7 +18,7 @@ import {
 } from '@owlmeans/regov-ssi-agent'
 import { Presentation } from '@owlmeans/regov-ssi-core'
 import { CapabilityCredential } from '@owlmeans/regov-ssi-capability'
-import { ClaimMembershipCapability, ClaimMembershipCredential, OfferMembershipCapability, OfferMembershipCredential } from '../../model/membership'
+import { ClaimMembershipCapability, ClaimMembershipCredential, MembershipCredential, OfferMembershipCapability, OfferMembershipCredential } from '../../model/membership'
 
 export type CredentialState = {
   currentClaim?: ClaimBundleTypes
@@ -46,6 +46,7 @@ export type BundledFreeFormOffer = OfferCredential<OfferSubject<FreeFormCredenti
 
 
 export type FreeFormPresentation = Presentation<FreeFormCredential | EntityIdentity | SatelliteCredential>
+export type MembershipPresentation = Presentation<MembershipCredential | EntityIdentity | SatelliteCredential>
 
 export type ClaimBundleTypes = FreeFormClaimBundle | MembershipCapClaimBundle | MembershipClaimBundle
 

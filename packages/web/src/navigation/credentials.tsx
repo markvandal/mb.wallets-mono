@@ -9,7 +9,9 @@ import {
 
 import { 
   ClaimCredentialsForm, 
+  CredentialRequestForm, 
   CredentialResponseForm, 
+  CredentialVerifier, 
   OfferCredentialsForm,
   StoreCredentialsForm 
 } from "../components"
@@ -35,6 +37,12 @@ export const CredentialsNavigation = () => {
       </Route>
       <Route path={`${path}/store`}>
         <StoreCredentialsForm />
+      </Route>
+      <Route path={`${path}/request`}>
+        <CredentialRequestForm />
+      </Route>
+      <Route path={`${path}/verify`}>
+        <CredentialVerifier />
       </Route>
     </Switch>
   </Box>

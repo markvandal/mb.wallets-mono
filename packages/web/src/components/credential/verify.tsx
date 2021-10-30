@@ -27,6 +27,7 @@ import { RootState } from '../../store/types'
 import { credentialHelper } from '../../model/credential'
 import { passportHelper } from '../../model/passport'
 import { extractSubject } from '@owlmeans/regov-ssi-core'
+import { MEMBERSHIP_CREDENTIAL_TYPE } from '../../model/membership'
 
 
 type CredentialVerifierProps = {
@@ -52,7 +53,7 @@ const connector = connect(
         }
         try {
           const bundle = unbundle(fields.document)
-          if (bundle.type !== 'credential') {
+          if (!['credential', 'response'].includes(bundle.type)) {
             dispatch(credentialActions.verify({
               offer: bundle.document,
               errors: ['Можно проверить только подписанный документ']
@@ -89,7 +90,15 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
     const classes = useStyles()
     const helper = buildFormHelper<VerifierFields>([useRef()])
 
-    const offerCredential = credential?.offer && credentialHelper(wallet).unbundleOffer(credential.offer)
+    let offerCredential = credential?.offer && credentialHelper(wallet).unbundleOffer(credential.offer)
+
+    if (!offerCredential) {
+      offerCredential = credential?.offer.verifiableCredential.find(
+        cred => cred.type.includes(MEMBERSHIP_CREDENTIAL_TYPE)
+      )
+
+      // debugger
+    }
 
     return credential
       ? <Card>
@@ -123,7 +132,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                       )
                       : <Paper>
                         <pre className={classes.content}>
-                          {extractSubject(offerCredential)}
+                          {JSON.stringify(extractSubject(offerCredential), null, 2)}
                         </pre>
                       </Paper>
                   }
@@ -140,7 +149,7 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                   <Paper>
                     <pre className={classes.content}>
                       {
-                        JSON.stringify(offerCredential?.credentialSubject.data.credential, null, 2)
+                        JSON.stringify(offerCredential, null, 2)
                       }
                     </pre>
                   </Paper>
@@ -188,10 +197,10 @@ export const CredentialVerifier = compose(withWallet, withRouter, connector)(
                 </Grid>
               </Grid>
               <Grid item>
-              <Button fullWidth variant="contained" size="large" color="primary"
-                onClick={clear}>
-                Очистить
-              </Button>
+                <Button fullWidth variant="contained" size="large" color="primary"
+                  onClick={clear}>
+                  Очистить
+                </Button>
               </Grid>
             </Grid>
           </Grid>

@@ -125,9 +125,9 @@ export const CredentialClaim = compose(withWallet, connector)(
                 spacing={1}>
                 <Grid item xs={6}>
                   <Button fullWidth variant="contained" size="large"
-                    disabled={!created && !wallet?.hasIdentity()}
+                    disabled={true}
                     onClick={() => create(helper.extract())}>
-                    Создать
+                    Создать (в этой версии функция не доступна)
                   </Button>
                 </Grid>
               </Grid>
